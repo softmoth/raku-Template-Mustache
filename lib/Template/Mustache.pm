@@ -5,6 +5,9 @@ my class X::Template::Mustache::CannotParse is Exception {
 }
 
 class Template::Mustache {
+    has $.extension = '.mustache';
+    has $.from;
+
     #use Grammar::Tracer;
     grammar Template::Mustache::Grammar {
         regex TOP {
@@ -129,19 +132,48 @@ class Template::Mustache {
         }
     }
 
-    method render($template, %data, :$partials = {}) {
+    method render($template, %data, :$partials = {}, :$from is copy, :$extension is copy) {
+        # XXX There must be a better way to use an instance var if available, but
+        # use a default if called on a type object
+        if !$from.defined and self.defined {
+            $from = $!from;
+        }
+        if !$extension.defined and self.defined {
+            $extension = $!extension;
+        }
+        else {
+            $extension = '.mustache';
+        }
+
         #note "TEMPLATE ", $template.perl;
         #note "DATA ", %data.perl;
         #note "PARTIALS ", $partials.perl if $partials;
 
         my $actions = Template::Mustache::Actions.new;
-        sub parse_template($template) {
-            Template::Mustache::Grammar.parse($template, :$actions)
-                or X::Template::Mustache::CannotParse.new(:str($template)).throw;
+        sub parse-template($template, $indent = '') {
+            my $t := $template;
+            if $from {
+                # RAKUDO: .slurp error seems to be un-CATCH-able?
+                $t := my $str;
+                my $file = IO::Spec.catfile($from, $template ~ $extension).IO;
+                if $file.r {
+                    $str = $file.slurp;
+                }
+                else {
+                    #log_warn "Template '$file.path()' not found";
+                    $str = '';
+                }
+
+            }
+
+            $t := $t.subst(/^^/, $indent, :g) if $indent;
+
+            Template::Mustache::Grammar.parse($t, :$actions)
+                or X::Template::Mustache::CannotParse.new(:str($t)).throw;
             #note $/.made.perl;
             return @($/.made);
         }
-        my @parsed = parse_template($template);
+        my @parsed = parse-template($template);
         return format(@parsed, [%data], %$partials);
 
         # Can't use this, it doesn't encode &quot; (")
@@ -225,11 +257,12 @@ class Template::Mustache {
                     }
                 }
                 when 'partial' {
-                    my $p = %partials{%val<val>} // '';
-                    if $p and %val<indent> {
-                        $p = $p.subst(/^^/, %val<indent>, :g);
+                    my $p = %val<val>;
+                    unless $from {
+                        $p = %partials{$p} // '';
+                        #note "#!! PARTIAL $p.perl(): %val.perl(), %partials.perl()";
                     }
-                    my @partial = parse_template($p);
+                    my @partial = parse-template($p, %val<indent>);
                     #note "PARTIAL FORMAT DATA ", @data.perl;
                     format(@partial, @data, %partials);
                 }
