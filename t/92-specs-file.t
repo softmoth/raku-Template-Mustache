@@ -12,17 +12,16 @@ sub cleanup(:$rmdir = False) {
 END { cleanup(:rmdir); }
 
 mkdir $views;
-my $m = Template::Mustache.new: :from();
+my $m = Template::Mustache.new: :from($views);
 for load-specs '../mustache-spec/specs' {
     cleanup;
-    "$views/specs-file-main.mustache".IO.spurt: $_<template>;
+    ("$views/specs-file-main" ~ $m.extension).IO.spurt: $_<template>;
     for $_<partials>.kv -> $name, $text {
-        "$views/$name.mustache".IO.spurt: $text;
+        ("$views/$name" ~ $m.extension).IO.spurt: $text;
     }
-    is Template::Mustache.render('specs-file-main', $_<data>, :from($views)),
+    is $m.render('specs-file-main', $_<data>),
         $_<expected>,
-        "$_<name>: $_<desc>"
-            or last;
+        "$_<name>: $_<desc>";
 }
 
 done;

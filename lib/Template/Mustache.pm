@@ -135,14 +135,11 @@ class Template::Mustache {
     method render($template, %data, :$partials = {}, :$from is copy, :$extension is copy) {
         # XXX There must be a better way to use an instance var if available, but
         # use a default if called on a type object
-        if !$from.defined and self.defined {
-            $from = $!from;
+        if !$from.defined {
+            $from = $!from if self.defined;
         }
-        if !$extension.defined and self.defined {
-            $extension = $!extension;
-        }
-        else {
-            $extension = '.mustache';
+        if !$extension.defined {
+            $extension = self.defined ?? $!extension !! '.mustache';
         }
 
         #note "TEMPLATE ", $template.perl;
@@ -152,7 +149,7 @@ class Template::Mustache {
         my $actions = Template::Mustache::Actions.new;
         sub parse-template($template, $indent = '') {
             my $t := $template;
-            if $from {
+            if $from ~~ Stringy {
                 # RAKUDO: .slurp error seems to be un-CATCH-able?
                 $t := my $str;
                 my $file = IO::Spec.catfile($from, $template ~ $extension).IO;
