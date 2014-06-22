@@ -18,18 +18,16 @@ sub load-specs (Str $specs-dir) {
     # Uncomment and tweak to run a specific test
     #$file = 'partials'; $start = 0;
 
+    diag "Reading spec files from '$specs-dir'";
     my @files;
     try {
-        @files = dir($specs-dir).grep({/$file\.json$/}).sort;
+        # Skip optional (~*) tests, NYI
+        @files = dir($specs-dir, :test(rx{^ <![~]> (.+) '.json' $ })).sort;
         CATCH { return (); }
     }
-    # NYI
-    @files .= grep({$_ !~~ /lambda/});
 
-    diag "Reading spec files from '$specs-dir'";
     my @specs = gather for @files {
-        my $json = slurp $_;
-        my %data = from-json $json;
+        my %data = from-json slurp $_;
         diag "- $_: {+%data<tests>}";
         take @(%data<tests>)[$start..*];
     }
