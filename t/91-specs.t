@@ -3,9 +3,10 @@ use Test;
 use Template::Mustache;
 
 for load-specs '../mustache-spec/specs' {
-    is Template::Mustache.render($_<template>, $_<data>, :partials($_<partials>)),
+    is Template::Mustache.render($_<template>, $_<data>, :from($_<partials>)),
         $_<expected>,
-        "$_<name>: $_<desc>";
+        "$_<name>: $_<desc>"
+            or last;
 }
 
 done;
@@ -29,7 +30,7 @@ sub load-specs (Str $specs-dir) {
     my @specs = gather for @files {
         my %data = from-json slurp $_;
         diag "- $_: {+%data<tests>}";
-        take @(%data<tests>)[$start..*];
+        take @(%data<tests>);
     }
 
     plan @specs + 1;
@@ -37,6 +38,8 @@ sub load-specs (Str $specs-dir) {
         if @specs == 0;
 
     ok @specs > 0 && @specs[0]<template>, "Specs files located";
+
+    skip "Getting right to the problem", $start - 2 if $start > 1;
 
     return @specs;
 }

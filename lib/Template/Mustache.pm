@@ -132,46 +132,91 @@ class Template::Mustache {
         }
     }
 
-    method render($template, %data, :$partials = {}, :$from is copy, :$extension is copy) {
-        # XXX There must be a better way to use an instance var if available, but
-        # use a default if called on a type object
-        if !$from.defined {
-            $from = $!from if self.defined;
-        }
+    method render($template, %data, Bool :$literal, :$from is copy, :$extension is copy) {
         if !$extension.defined {
-            $extension = self.defined ?? $!extension !! '.mustache';
+            $extension = self ?? $!extension !! '.mustache';
+        }
+        $extension = [ $extension ] unless $extension ~~ Positional;
+
+        if $from.defined {
+            $from = [ $from ] unless $from ~~ Positional;
+            $from.push: $!from if self and $!from;
+        }
+        else {
+            $from = self ?? $!from !! [];
         }
 
-        #note "TEMPLATE ", $template.perl;
-        #note "DATA ", %data.perl;
-        #note "PARTIALS ", $partials.perl if $partials;
+        my $initial-template;
+        if $literal {
+            # Use $template itself as the template text
+            # Either :from(Str) was specified in caller, or no :from() and
+            # called via type object (no instance to find default)
+            $initial-template = $template;
+        }
+        elsif get-template($template, :silent) -> $t {
+            $initial-template = $t;
+        }
+        else {
+            # Couldn't find the initial template, assume literal
+            # unless explicitly prohibited
+            $initial-template = $template unless $literal.defined;
+            #log_warn "Template '$template' undefined";
+            $initial-template //= '';
+        }
+
+        #note "TEMPLATE: $template.perl()";
+        #note "DATA:  %data.perl()";
+        #note "FROM: $from.perl()";
+        #note "EXTENSION: $extension.perl()";
 
         my $actions = Template::Mustache::Actions.new;
-        sub parse-template($template, $indent = '') {
-            my $t := $template;
-            if $from ~~ Stringy {
-                # RAKUDO: .slurp error seems to be un-CATCH-able?
-                $t := my $str;
-                my $file = IO::Spec.catfile($from, $template ~ $extension).IO;
-                if $file.r {
-                    $str = $file.slurp;
-                }
-                else {
-                    #log_warn "Template '$file.path()' not found";
-                    $str = '';
-                }
+        my @parsed = parse-template($initial-template);
+        return format(@parsed, [%data]);
 
+
+        sub get-template($template, :$silent) {
+            sub read-template-file($dir) {
+                for @$extension -> $ext {
+                    my $file = IO::Spec.catfile($dir, $template ~ $ext).IO;
+                    return $file.slurp;
+                    CATCH {
+                        # RAKUDO: slurp throws X::Adhoc exception
+                        default {
+                            # Ignore it
+                        }
+                    }
+                }
+                #log_warn "Unable to find file for template '$template'" unless $silent;
+                return Nil;
             }
 
-            $t := $t.subst(/^^/, $indent, :g) if $indent;
+            for @$from {
+                when Associative {
+                    if $_{$template} -> $t { return $t; }
+                }
 
-            Template::Mustache::Grammar.parse($t, :$actions)
-                or X::Template::Mustache::CannotParse.new(:str($t)).throw;
+                when any(Stringy, IO::Path) {
+                    # Look for $template file in this directory
+                    my $t = read-template-file($_);
+                    return $t if $t.defined;
+                }
+
+                default {
+                    warn "Ignoring unrecognized :from() entry $_.perl()";
+                }
+            }
+
+            #log_warn "Unable to get template '$template' from anywhere" unless $silent;
+            return '';
+        }
+
+        sub parse-template($template is copy, $indent = '') {
+            $template .= subst(/^^/, $indent, :g) if $indent;
+            Template::Mustache::Grammar.parse($template, :$actions)
+                or X::Template::Mustache::CannotParse.new(:str($template)).throw;
             #note $/.made.perl;
             return @($/.made);
         }
-        my @parsed = parse-template($template);
-        return format(@parsed, [%data], %$partials);
 
         # Can't use this, it doesn't encode &quot; (")
         #use HTML::Entity;
@@ -186,14 +231,14 @@ class Template::Mustache {
         }
 
         # TODO Track recursion depth and throw if > 100?
-        multi sub format(@val, @data, %partials) {
+        multi sub format(@val, @data) {
             #note "** \@ ...";
-            my $j = join '', @val.map: { format($_, @data, %partials) };
+            my $j = join '', @val.map: { format($_, @data) };
             #note "** ... \@ $j";
             $j;
         }
-        multi sub format($val, @data, %partials) { $val }
-        multi sub format(%val, @data, %partials) {
+        multi sub format($val, @data) { $val }
+        multi sub format(%val, @data) {
             sub get(@data, $field) {
                 #note "GET '$field' from: ", @data.perl;
                 if $field eq '.' {
@@ -232,21 +277,21 @@ class Template::Mustache {
                         when Associative {
                             temp @data;
                             @data.unshift: $_;
-                            format(%val<contents>, @data, %partials);
+                            format(%val<contents>, @data);
                         }
                         when Positional {
                             (gather for @$_ -> $datum {
                                 temp @data;
                                 @data.unshift: $datum;
-                                take format(%val<contents>, @data, %partials);
+                                take format(%val<contents>, @data);
                             }).join('');
                         }
                         default {
-                            format(%val<contents>, @data, %partials);
+                            format(%val<contents>, @data);
                         }
                     }
                     elsif %val<inverted> and !$datum {
-                        format(%val<contents>, @data, %partials);
+                        format(%val<contents>, @data);
                     }
                     else {
                         #note "!!! EMPTY SECTION '%val<val>'";
@@ -254,14 +299,9 @@ class Template::Mustache {
                     }
                 }
                 when 'partial' {
-                    my $p = %val<val>;
-                    unless $from {
-                        $p = %partials{$p} // '';
-                        #note "#!! PARTIAL $p.perl(): %val.perl(), %partials.perl()";
-                    }
-                    my @partial = parse-template($p, %val<indent>);
+                    my @partial = parse-template(get-template(%val<val>), %val<indent>);
                     #note "PARTIAL FORMAT DATA ", @data.perl;
-                    format(@partial, @data, %partials);
+                    format(@partial, @data);
                 }
                 default { die "Impossible format type: ", %val.perl }
             }

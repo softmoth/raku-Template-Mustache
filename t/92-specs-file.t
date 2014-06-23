@@ -45,7 +45,7 @@ sub load-specs (Str $specs-dir) {
     my @specs = gather for @files {
         my %data = from-json slurp $_;
         diag "- $_: {+%data<tests>}";
-        take @(%data<tests>)[$start..*];
+        take @(%data<tests>);
     }
 
     plan @specs + 1;
@@ -53,6 +53,8 @@ sub load-specs (Str $specs-dir) {
         if @specs == 0;
 
     ok @specs > 0 && @specs[0]<template>, "Specs files located";
+
+    skip "Getting right to the problem", $start - 2 if $start > 1;
 
     return @specs;
 }
