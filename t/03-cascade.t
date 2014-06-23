@@ -4,7 +4,7 @@ use Template::Mustache;
 
 plan 5;
 
-my $m = Template::Mustache.new: :from<t/views>;
+my $m = Template::Mustache.new: :from<views>;
 
 is $m.render(
         'hello',

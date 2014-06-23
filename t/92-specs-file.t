@@ -12,7 +12,7 @@ sub cleanup(:$rmdir = False) {
 END { cleanup(:rmdir); }
 
 mkdir $views;
-my $m = Template::Mustache.new: :from($views);
+my $m = Template::Mustache.new: :from($views.path.basename);
 for load-specs '../mustache-spec/specs' {
     cleanup;
     ("$views/specs-file-main" ~ $m.extension).IO.spurt: $_<template>;

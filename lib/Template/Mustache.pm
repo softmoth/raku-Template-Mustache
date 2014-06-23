@@ -175,7 +175,9 @@ class Template::Mustache {
 
 
         sub get-template($template, :$silent) {
-            sub read-template-file($dir) {
+            sub read-template-file($dir is copy) {
+                $dir = IO::Spec.catdir: $*PROGRAM_NAME.path.directory, $dir
+                    if $dir.path.is-relative;
                 for @$extension -> $ext {
                     my $file = IO::Spec.catfile($dir, $template ~ $ext).IO;
                     return $file.slurp;
@@ -308,5 +310,42 @@ class Template::Mustache {
         }
     }
 }
+
+=begin pod
+Perl6 implementation of http://mustache.github.io/
+
+=head1 Synopsis
+
+    use Template::Mustache;
+    # Hello, world!
+    Template::Mustache.render('Hello, {{planet}}!', { planet => 'world' }).say;
+
+    my @roster =
+        { :name('James T. Kirk'), :title<Captain> },
+        { :name('Wesley'), :title('Dread Pirate') },
+        ;
+    my $stache = Template::Mustache.new: :from<./views>;
+    $stache.render('roster', { :@roster });
+
+=head1 Tests
+
+To run tests,
+
+    git clone git@github.com:mustache/spec.git ../mustache-spec
+    PERL6LIB=./lib prove -e perl6 -v
+
+=head1 TODO
+
+=item object support (not just hashes and arrays)
+=item lambda support
+=item parsed template caching
+=item features from PHP mustache:
+=item2 inline loader (POD?)
+=item2 database loader
+=item2 pragmas (FILTERS, inheritance)
+=item2 .new(:helpers())
+=item simplify and clean up code
+
+=end pod
 
 # vim:set ft=perl6:
