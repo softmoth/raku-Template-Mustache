@@ -11,8 +11,6 @@ class Template::Mustache {
     #use Grammar::Tracer;
     grammar Template::Mustache::Grammar {
         regex TOP {
-            :my $*LEFT = '{{';
-            :my $*RIGHT = '}}';
             ^  <hunk>* (.*) $
         }
 
@@ -37,10 +35,10 @@ class Template::Mustache {
             $*LEFT '=' (\N*?) '=' $*RIGHT
         }
         regex thing:sym<section> {
-            $*LEFT (< # ^ / >) \h* (\S*?) \h* $*RIGHT
+            $*LEFT (< # ^ / >) \h* (\N*?) \h* $*RIGHT
         }
         regex thing:sym<partial> {
-            $*LEFT '>' \h* (\S*?) \h* $*RIGHT
+            $*LEFT '>' \h* (\N*?) \h* $*RIGHT
         }
     }
 
@@ -65,7 +63,12 @@ class Template::Mustache {
                             warn "Closing '$f<val>' section while looking for $hunk<val> section";
                             $f = Nil;
                         }
-                        if !$f {
+                        if $f {
+                            # $f is the opening thing for this section
+                            $f<raw-contents> = $/.substr($f<pos>, $hunk<pos> - $f<pos>);
+                            $f<pos> :delete;  # Not useful outside of this parse
+                        }
+                        else {
                             warn "No start of section found for /$hunk<val>!";
                         }
                     }
@@ -122,9 +125,11 @@ class Template::Mustache {
         method thing:sym<section>($/) {
             make {
                 :type<section>,
+                :delims([$*LEFT, $*RIGHT]),
                 :val(~$1.trim),
                 :on($0 ne '/'),
                 :inverted($0 eq '^'),
+                :pos($0 eq '/' ?? $/.from !! $/.to),
             }
         }
         method thing:sym<partial>($/) {
@@ -212,15 +217,16 @@ class Template::Mustache {
             return '';
         }
 
-        sub parse-template($template is copy, $indent = '') {
+        sub parse-template($template is copy, :$indent = '', :$delims) {
             $template .= subst(/^^/, $indent, :g) if $indent;
+            my ($*LEFT, $*RIGHT) = @$delims || ( '{{', '}}' );
             Template::Mustache::Grammar.parse($template, :$actions)
                 or X::Template::Mustache::CannotParse.new(:str($template)).throw;
             #note $/.made.perl;
             return @($/.made);
         }
 
-        # Can't use this, it doesn't encode &quot; (")
+        # Can't use HTML::Entity, it doesn't encode &quot; (")
         #use HTML::Entity;
         sub encode-entities($str) {
             $str.trans:
@@ -241,28 +247,59 @@ class Template::Mustache {
         }
         multi sub format($val, @data) { $val }
         multi sub format(%val, @data) {
-            sub get(@data, $field) {
-                #note "GET '$field' from: ", @data.perl;
-                if $field eq '.' {
-                    # Implicit iterator {{.}}
-                    return @data[0];
-                }
-                my @field = $field.split: '.';
-                my $ret = '';
-                for @data.map({$^ctx{@field[0]}}) -> $ctx {
-                    # In perl6, {} and [] are falsy, but Mustache
-                    # treats them as truthy
-                    if $ctx or $ctx ~~ Associative or $ctx ~~ Positional {
-                        $ret = $ctx;
-                        last;
+            sub get(@data, $field, :$section) {
+                sub resolve($obj) {
+                    if $obj ~~ Callable {
+                        my $str;
+                        if $obj.arity > 1 {
+                            warn "Ignoring '$field' lambda that takes $_ args";
+                            $str = '';
+                        }
+                        elsif $obj.arity == 1 {
+                            $str = $obj(%val<raw-contents> // '');
+                        }
+                        else {
+                            $str = $obj();
+                        }
+                        #note "#** Parsing '$str'";
+                        #note "#** ^ with delims %val<delims>.perl()" if %val<delims>;
+                        my @parsed = parse-template($str, :indent(%val<indent>), :delims(%val<delims>));
+                        my $result = format(@parsed, @data);
+                        return $result, True;
+                    }
+                    else {
+                        #note "#** Resolve of $obj.WHAT.perl() as '$obj'";
+                        return $obj, False;
                     }
                 }
-                while $ret and @field > 1 {
-                    @field.shift;
-                    $ret = $ret{@field[0]} // '';
+
+                #note "GET '$field' from: ", @data.perl;
+                my $result = '';
+                my $lambda = False;
+                if $field eq '.' {
+                    # Implicit iterator {{.}}
+                    ($result, $lambda) = resolve(@data[0]);
                 }
-                #note "get($field) is '$ret.perl()'";
-                return $ret;
+                else {
+                    my @field = $field.split: '.';
+                    for @data.map({$^ctx{@field[0]}}) -> $ctx {
+                        # In perl6, {} and [] are falsy, but Mustache
+                        # treats them as truthy
+                        #note "#** field lookup for @field[0]: '$ctx.perl()'";
+                        if $ctx or $ctx ~~ Associative or $ctx ~~ Positional {
+                            ($result, $lambda) = resolve($ctx);
+                            #note "#** ^ result is $result.perl(), lambda $lambda.perl()";
+                            last;
+                        }
+                    }
+                    while $result and !$lambda and @field > 1 {
+                        @field.shift;
+                        #note "#** dot field lookup for @field[0]";
+                        ($result, $lambda) = resolve($result{@field[0]}) // '';
+                    }
+                }
+                #note "get($field) is '$result.perl()'";
+                return $section ?? ($result, $lambda) !! $result;
             }
 
             #note "** \{ %val<type>: %val<val>";
@@ -274,7 +311,14 @@ class Template::Mustache {
                 when 'delim' { '' }
                 when 'section' {
                     #note "SECTION '%val<val>'";
-                    my $datum = get(@data, %val<val>);
+                    my ($datum, $lambda) = get(@data, %val<val>, :section);
+                    if $lambda {
+                        # The section was resolved by calling a lambda, which
+                        # is always considered truthy, regardless of the
+                        # lambda's return value
+                        return %val<inverted> ?? '' !! $datum;
+                    }
+
                     if !%val<inverted> and $datum -> $_ {
                         when Associative {
                             temp @data;
@@ -301,9 +345,9 @@ class Template::Mustache {
                     }
                 }
                 when 'partial' {
-                    my @partial = parse-template(get-template(%val<val>), %val<indent>);
+                    my @parsed = parse-template(get-template(%val<val>), :indent(%val<indent>));
                     #note "PARTIAL FORMAT DATA ", @data.perl;
-                    format(@partial, @data);
+                    format(@parsed, @data);
                 }
                 default { die "Impossible format type: ", %val.perl }
             }
