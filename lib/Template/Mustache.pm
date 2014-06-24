@@ -356,39 +356,76 @@ class Template::Mustache {
 }
 
 =begin pod
-Perl6 implementation of http://mustache.github.io/
+Perl6 implementation of the Mustache template format, L<http://mustache.github.io/>.
 
 =head1 Synopsis
 
+=begin code :allow< L B I >
     use Template::Mustache;
-    # Hello, world!
+
+    # Call .render as a class method
     Template::Mustache.render('Hello, {{planet}}!', { planet => 'world' }).say;
 
-    my @roster =
-        { :name('James T. Kirk'), :title<Captain> },
-        { :name('Wesley'), :title('Dread Pirate') },
-        ;
+    # Or instantiate an instance
     my $stache = Template::Mustache.new: :from<./views>;
-    $stache.render('roster', { :@roster });
 
-=head1 Tests
+    # Subroutines are called
+    say $stache.render('The time is {{time}}', {
+        time => { ~DateTime.new($now).local }
+    });
+
+    my @people =
+        { :name('James T. Kirk'), :title<Captain> },
+        { :name('Wesley'), :title('Dread Pirate'), :emcee },
+        { :name('Dana Scully'), :title('Special Agent') },
+        ;
+
+    # See this template in B<L<./t/views/roster.mustache>>
+    $stache.render('roster', { :@people }).say;
+
+    my %data =
+        event => 'Masters of the Universe Convention',
+        :@people,
+        ;
+    my %partials =
+        welcome =>
+            qq:b{Welcome to the {{event}}! We’re pleased to have you here.\n\n},
+        ;
+
+    # See this result in B<L<./t/50-readme.t>>
+    Template::Mustache.render(q:to/EOF/,
+            {{> welcome}}
+            {{> roster}}
+
+                Dinner at 7PM in the Grand Ballroom. Bring a chair!
+            EOF
+        %data,
+        :from([%partials, './views'])
+    ).say;
+
+=end code
+
+=head1 More Examples and Tests
+
+The Mustache spec L<https://github.com/mustache/tree/master/spec/specs/>
+provides a wealth of examples to demonstrate exactly how the format behaves.
 
 To run tests,
 
-    git clone git@github.com:mustache/spec.git ../mustache-spec
+=begin code
+    # NB Ensure you are using the default 'perl6' branch, not 'master'
+    git clone git@github.com:softmoth/mustache-spec.git ../mustache-spec
     PERL6LIB=./lib prove -e perl6 -v
+=end code
 
 =head1 TODO
 
 =item object support (not just hashes and arrays)
-=item lambda support
 =item parsed template caching
-=item features from PHP mustache:
-=item2 inline loader (POD?)
-=item2 database loader
-=item2 pragmas (FILTERS, inheritance)
-=item2 .new(:helpers())
-=item simplify and clean up code
+=item .new(:helpers())
+=item pragmas (FILTERS, inheritance)
+=item database loader
+=item inline loader (POD?)
 
 =end pod
 
