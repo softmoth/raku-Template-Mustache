@@ -407,8 +407,10 @@ Perl6 implementation of the Mustache template format, L<http://mustache.github.i
 
 =head1 More Examples and Tests
 
-The Mustache spec L<https://github.com/mustache/tree/master/spec/specs/>
-provides a wealth of examples to demonstrate exactly how the format behaves.
+The Mustache spec provides a wealth of examples to demonstrate exactly how the
+format behaves.
+
+L<https://github.com/mustache/spec/tree/master/specs/>
 
 To run tests,
 

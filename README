@@ -48,7 +48,9 @@ Synopsis
 
 More Examples and Tests
 
-The Mustache spec https://github.com/mustache/tree/master/spec/specs/ provides a wealth of examples to demonstrate exactly how the format behaves.
+The Mustache spec provides a wealth of examples to demonstrate exactly how the format behaves.
+
+https://github.com/mustache/spec/tree/master/specs/
 
 To run tests,
 

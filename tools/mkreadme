@@ -1,0 +1,2 @@
+#! /bin/sh
+perl6 --doc ./lib/Template/Mustache.pm | sed 's/  *$//' > README
