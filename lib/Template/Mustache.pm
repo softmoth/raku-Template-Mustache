@@ -14,30 +14,30 @@ class Template::Mustache {
             ^  <hunk>* (.*) $
         }
 
-        regex hunk { (.*?) [<linething> | <thing>] }
+        regex hunk { (.*?) [<linetag> | <tag>] }
 
-        token linething { ^^ (\h*) <thing> <?{
+        token linetag { ^^ (\h*) <tag> <?{
             # XXX Very ugly to use an assertion here!
             # Interpolations do NOT affect surrounding whitespace
-            $<thing>.made<type> ~~ none(<var qvar mmmvar>)
+            $<tag>.made<type> ~~ none(<var qvar mmmvar>)
         }>\h* [\n|$] }
 
         token name { [<ident> * % '.' | ('.')] }
-        proto regex thing { <...> }
-        regex thing:sym<comment> { $*LEFT '!' (.*?) $*RIGHT }
-        token thing:sym<var> { $*LEFT \h* <name> \h* $*RIGHT }
-        token thing:sym<qvar> { $*LEFT '&' \h* <name> \h* $*RIGHT }
-        token thing:sym<mmmvar> {
+        proto regex tag { <...> }
+        regex tag:sym<comment> { $*LEFT '!' (.*?) $*RIGHT }
+        token tag:sym<var> { $*LEFT \h* <name> \h* $*RIGHT }
+        token tag:sym<qvar> { $*LEFT '&' \h* <name> \h* $*RIGHT }
+        token tag:sym<mmmvar> {
             <?{ $*LEFT eq '{{' and $*RIGHT eq '}}' }>
             '{{{' \h* <name> \h* '}}}'
         }
-        regex thing:sym<delim> {
+        regex tag:sym<delim> {
             $*LEFT '=' (\N*?) '=' $*RIGHT
         }
-        regex thing:sym<section> {
+        regex tag:sym<section> {
             $*LEFT (< # ^ / >) \h* (\N*?) \h* $*RIGHT
         }
-        regex thing:sym<partial> {
+        regex tag:sym<partial> {
             $*LEFT '>' \h* (\N*?) \h* $*RIGHT
         }
     }
@@ -64,7 +64,7 @@ class Template::Mustache {
                             $f = Nil;
                         }
                         if $f {
-                            # $f is the opening thing for this section
+                            # $f is the opening tag for this section
                             $f<raw-contents> = $/.substr($f<pos>, $hunk<pos> - $f<pos>);
                             $f<pos> :delete;  # Not useful outside of this parse
                         }
@@ -84,21 +84,21 @@ class Template::Mustache {
         method hunk($/) {
             my @x;
             @x.push(~$0) if $0.chars;
-            for $<linething thing>.grep(*.defined)».made -> $thing {
-                $thing<finalizer>() if $thing<finalizer>;
-                @x.push: $thing;
+            for $<linetag tag>.grep(*.defined)».made -> $tag {
+                $tag<finalizer>() if $tag<finalizer>;
+                @x.push: $tag;
             }
             make @x;
         }
-        method linething($/) {
-            my $thing = $<thing>.made;
-            $thing<indent> = ~$0;
-            make $thing;
+        method linetag($/) {
+            my $tag = $<tag>.made;
+            $tag<indent> = ~$0;
+            make $tag;
         }
         method name($/) {
             make $0 // ~@<ident>.join('.')
         }
-        method thing:sym<delim>($/) {
+        method tag:sym<delim>($/) {
             my @delim = $0.comb(/\S+/);
             @delim == 2 or X::Template::Mustache::CannotParse.new(:err<Invalid delimiters>, :str($/)).throw;
             make {
@@ -110,19 +110,19 @@ class Template::Mustache {
                 }),
             }
         }
-        method thing:sym<comment>($/) {
+        method tag:sym<comment>($/) {
             make { :type<comment>, :val(~$0) }
         }
-        method thing:sym<var>($/) {
+        method tag:sym<var>($/) {
             make { :type<var>, :val(~$<name>) }
         }
-        method thing:sym<qvar>($/) {
+        method tag:sym<qvar>($/) {
             make { :type<qvar>, :val(~$<name>) }
         }
-        method thing:sym<mmmvar>($/) {
+        method tag:sym<mmmvar>($/) {
             make { :type<mmmvar>, :val(~$<name>) }
         }
-        method thing:sym<section>($/) {
+        method tag:sym<section>($/) {
             make {
                 :type<section>,
                 :delims([$*LEFT, $*RIGHT]),
@@ -132,12 +132,12 @@ class Template::Mustache {
                 :pos($0 eq '/' ?? $/.from !! $/.to),
             }
         }
-        method thing:sym<partial>($/) {
+        method tag:sym<partial>($/) {
             make { :type<partial>, :val(~$0) }
         }
     }
 
-    method render($template, %data, Bool :$literal, :$from is copy, :$extension is copy) {
+    method render($template, %context, Bool :$literal, :$from is copy, :$extension is copy) {
         if !$extension.defined {
             $extension = self ?? $!extension !! '.mustache';
         }
@@ -170,13 +170,13 @@ class Template::Mustache {
         }
 
         #note "TEMPLATE: $template.perl()";
-        #note "DATA:  %data.perl()";
+        #note "DATA:  %context.perl()";
         #note "FROM: $from.perl()";
         #note "EXTENSION: $extension.perl()";
 
         my $actions = Template::Mustache::Actions.new;
         my @parsed = parse-template($initial-template);
-        return format(@parsed, [%data]);
+        return format(@parsed, [%context]);
 
 
         sub get-template($template, :$silent) {
@@ -239,15 +239,15 @@ class Template::Mustache {
         }
 
         # TODO Track recursion depth and throw if > 100?
-        multi sub format(@val, @data) {
+        multi sub format(@val, @context) {
             #note "** \@ ...";
-            my $j = join '', @val.map: { format($_, @data) };
+            my $j = join '', @val.map: { format($_, @context) };
             #note "** ... \@ $j";
             $j;
         }
-        multi sub format($val, @data) { $val }
-        multi sub format(%val, @data) {
-            sub get(@data, $field, :$section) {
+        multi sub format($val, @context) { $val }
+        multi sub format(%val, @context) {
+            sub get(@context, $field, :$section) {
                 sub resolve($obj) {
                     if $obj ~~ Callable {
                         my $str;
@@ -264,7 +264,7 @@ class Template::Mustache {
                         #note "#** Parsing '$str'";
                         #note "#** ^ with delims %val<delims>.perl()" if %val<delims>;
                         my @parsed = parse-template($str, :indent(%val<indent>), :delims(%val<delims>));
-                        my $result = format(@parsed, @data);
+                        my $result = format(@parsed, @context);
                         return $result, True;
                     }
                     else {
@@ -273,16 +273,16 @@ class Template::Mustache {
                     }
                 }
 
-                #note "GET '$field' from: ", @data.perl;
+                #note "GET '$field' from: ", @context.perl;
                 my $result = '';
                 my $lambda = False;
                 if $field eq '.' {
                     # Implicit iterator {{.}}
-                    ($result, $lambda) = resolve(@data[0]);
+                    ($result, $lambda) = resolve(@context[0]);
                 }
                 else {
                     my @field = $field.split: '.';
-                    for @data.map({$^ctx{@field[0]}}) -> $ctx {
+                    for @context.map({$^ctx{@field[0]}}) -> $ctx {
                         # In perl6, {} and [] are falsy, but Mustache
                         # treats them as truthy
                         #note "#** field lookup for @field[0]: '$ctx.perl()'";
@@ -305,13 +305,13 @@ class Template::Mustache {
             #note "** \{ %val<type>: %val<val>";
             given %val<type> {
                 when 'comment' { '' }
-                when 'var' { encode-entities(~get(@data, %val<val>)) }
-                when 'qvar' { get(@data, %val<val>) }
-                when 'mmmvar' { get(@data, %val<val>) }
+                when 'var' { encode-entities(~get(@context, %val<val>)) }
+                when 'qvar' { get(@context, %val<val>) }
+                when 'mmmvar' { get(@context, %val<val>) }
                 when 'delim' { '' }
                 when 'section' {
                     #note "SECTION '%val<val>'";
-                    my ($datum, $lambda) = get(@data, %val<val>, :section);
+                    my ($datum, $lambda) = get(@context, %val<val>, :section);
                     if $lambda {
                         # The section was resolved by calling a lambda, which
                         # is always considered truthy, regardless of the
@@ -321,23 +321,23 @@ class Template::Mustache {
 
                     if !%val<inverted> and $datum -> $_ {
                         when Associative {
-                            temp @data;
-                            @data.unshift: $_;
-                            format(%val<contents>, @data);
+                            temp @context;
+                            @context.unshift: $_;
+                            format(%val<contents>, @context);
                         }
                         when Positional {
                             (gather for @$_ -> $datum {
-                                temp @data;
-                                @data.unshift: $datum;
-                                take format(%val<contents>, @data);
+                                temp @context;
+                                @context.unshift: $datum;
+                                take format(%val<contents>, @context);
                             }).join('');
                         }
                         default {
-                            format(%val<contents>, @data);
+                            format(%val<contents>, @context);
                         }
                     }
                     elsif %val<inverted> and !$datum {
-                        format(%val<contents>, @data);
+                        format(%val<contents>, @context);
                     }
                     else {
                         #note "!!! EMPTY SECTION '%val<val>'";
@@ -346,8 +346,8 @@ class Template::Mustache {
                 }
                 when 'partial' {
                     my @parsed = parse-template(get-template(%val<val>), :indent(%val<indent>));
-                    #note "PARTIAL FORMAT DATA ", @data.perl;
-                    format(@parsed, @data);
+                    #note "PARTIAL FORMAT DATA ", @context.perl;
+                    format(@parsed, @context);
                 }
                 default { die "Impossible format type: ", %val.perl }
             }
@@ -383,7 +383,7 @@ Perl6 implementation of the Mustache template format, L<http://mustache.github.i
     # See this template in B<L<./t/views/roster.mustache>>
     $stache.render('roster', { :@people }).say;
 
-    my %data =
+    my %context =
         event => 'Masters of the Universe Convention',
         :@people,
         ;
@@ -399,7 +399,7 @@ Perl6 implementation of the Mustache template format, L<http://mustache.github.i
 
                 Dinner at 7PM in the Grand Ballroom. Bring a chair!
             EOF
-        %data,
+        %context,
         :from([%partials, './views'])
     ).say;
 
@@ -420,14 +420,29 @@ To run tests,
     PERL6LIB=./lib prove -e perl6 -v
 =end code
 
+All spec tests pass; the perl6 branch just updates the .json files to match the
+.yml sources (needed until someone writes a Perl 6 YAML parser, hint, hint),
+and adds perl6 lambda code strings for that portion of the specs.
+
+=head1 Other Mustache Implementations
+
+There are many, many Mustache implementations in various languages. Some of
+note are:
+
+=item The original Ruby version L<https://github.com/defunkt/mustache>
+=item Twitter's hogan.js L<https://github.com/twitter/hogan.js>
+=item mustache.java L<https://github.com/spullara/mustache.java>
+=item GRMustache (Objective C) L<https://github.com/groue/GRMustache>
+=item mustache.php L<https://github.com/bobthecow/mustache.php>
+
 =head1 TODO
 
 =item object support (not just hashes and arrays)
 =item parsed template caching
-=item .new(:helpers())
-=item pragmas (FILTERS, inheritance)
+=item global helpers (context items that float at the top of the stack)
+=item template inheritance: L<https://github.com/mustache/spec/issues/38>, etc.
 =item database loader
-=item inline loader (POD?)
+=item pragmas (FILTERS?)
 
 =end pod
 
