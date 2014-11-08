@@ -42,7 +42,7 @@ sub load-specs (Str $specs-dir) {
         @files = dir($specs-dir, :test(rx{ '.json' $ })).sort;
         @files = () unless @files[0]; # handle failure of dir()
         @files .= grep: { .basename eq "$file.json" } if $file;
-        CATCH { return (); }
+        CATCH { @files = () }
     }
 
     my @specs = gather for @files {
