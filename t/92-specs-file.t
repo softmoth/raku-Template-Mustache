@@ -61,7 +61,7 @@ sub load-specs (Str $specs-dir) {
     }
 
     plan @specs + 1;
-    todo "You must clone github.com/mustache/spec into '{$specs-dir.path.directory}'"
+    todo "You must clone github.com/mustache/spec into '{$specs-dir.path.dirname}'"
         if @specs == 0;
 
     ok @specs > 0 && @specs[0]<template>, "Specs files located";
