@@ -40,8 +40,9 @@ sub load-specs (Str $specs-dir) {
     try {
         # Skip optional (~*) tests, NYI
         @files = dir($specs-dir, :test(rx{ '.json' $ })).sort;
+        @files = () unless @files[0]; # handle failure of dir()
         @files .= grep: { .basename eq "$file.json" } if $file;
-        CATCH { return (); }
+        CATCH { @files = () }
     }
 
     my @specs = gather for @files {
@@ -61,7 +62,7 @@ sub load-specs (Str $specs-dir) {
     }
 
     plan @specs + 1;
-    todo "You must clone github.com/mustache/spec into '{$specs-dir.path.directory}'"
+    todo "You must clone github.com/mustache/spec into '{$specs-dir.path.dirname}'"
         if @specs == 0;
 
     ok @specs > 0 && @specs[0]<template>, "Specs files located";

@@ -23,7 +23,7 @@ is $oddext.render('hi', { :name<Jimmy> }, :extension<.ms>),
     "Instance extension can be overridden";
 
 is Template::Mustache.render('hello', { :name<Jimmy> },
-        :from(IO::Spec.catdir($*CWD, 't', 'views'))),
+        :from($*SPEC.catdir($*CWD, 't', 'views'))),
     "Hello, Jimmy.\n",
     "Absolute path to templates";
 

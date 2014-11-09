@@ -44,7 +44,7 @@ class Template::Mustache {
 
     class Template::Mustache::Actions {
         method TOP($/) {
-            my %x = { :val(''), :contents([]) };
+            my %x = :val(''), :contents([]);
             my @frames;
             @frames.unshift: $%x;
             for $<hunk>».made.flat -> $hunk {
@@ -181,10 +181,10 @@ class Template::Mustache {
 
         sub get-template($template, :$silent) {
             sub read-template-file($dir is copy) {
-                $dir = IO::Spec.catdir: $*PROGRAM_NAME.path.directory, $dir
+                $dir = $*SPEC.catdir: $*PROGRAM_NAME.path.dirname, $dir
                     if $dir.path.is-relative;
                 for @$extension -> $ext {
-                    my $file = IO::Spec.catfile($dir, $template ~ $ext).IO;
+                    my $file = $*SPEC.catfile($dir, $template ~ $ext).IO;
                     return $file.slurp;
                     CATCH {
                         # RAKUDO: slurp throws X::Adhoc exception
