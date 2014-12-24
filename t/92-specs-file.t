@@ -12,7 +12,7 @@ sub cleanup(:$rmdir = False) {
 END { cleanup(:rmdir); }
 
 mkdir $views;
-my $m = Template::Mustache.new: :from($views.path.basename);
+my $m = Template::Mustache.new: :from($views.IO.basename);
 for load-specs '../mustache-spec/specs' {
     cleanup;
     ("$views/specs-file-main" ~ $m.extension).IO.spurt: $_<template>;
@@ -46,7 +46,7 @@ sub load-specs (Str $specs-dir) {
     }
 
     my @specs = gather for @files {
-        my %data = from-json slurp $_;
+        my %data = %(from-json slurp $_);
         diag "- $_: {+%data<tests>}";
         for %data<tests>.list -> $t {
             if $t<data><lambda> -> $l {
