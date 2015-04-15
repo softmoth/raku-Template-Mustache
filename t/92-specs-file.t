@@ -12,7 +12,7 @@ sub cleanup(:$rmdir = False) {
 END { cleanup(:rmdir); }
 
 mkdir $views;
-my $m = Template::Mustache.new: :from($views.path.basename);
+my $m = Template::Mustache.new: :from($views.IO.basename);
 for load-specs '../mustache-spec/specs' {
     cleanup;
     ("$views/specs-file-main" ~ $m.extension).IO.spurt: $_<template>;
@@ -62,7 +62,7 @@ sub load-specs (Str $specs-dir) {
     }
 
     plan @specs + 1;
-    todo "You must clone github.com/mustache/spec into '{$specs-dir.path.dirname}'"
+    todo "You must clone github.com/mustache/spec into '{$specs-dir.IO.dirname}'"
         if @specs == 0;
 
     ok @specs > 0 && @specs[0]<template>, "Specs files located";
