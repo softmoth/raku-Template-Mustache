@@ -305,7 +305,7 @@ class Template::Mustache {
             #note "** \{ %val<type>: %val<val>";
             given %val<type> {
                 when 'comment' { '' }
-                when 'var' { encode-entities(get(@data, %val<val>)) }
+                when 'var' { encode-entities(~get(@data, %val<val>)) }
                 when 'qvar' { get(@data, %val<val>) }
                 when 'mmmvar' { get(@data, %val<val>) }
                 when 'delim' { '' }
