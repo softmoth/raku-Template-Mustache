@@ -24,7 +24,7 @@ Synopsis
          # See this template in  ./t/views/roster.mustache
          $stache.render('roster', { :@people }).say;
 
-         my %data =
+         my %context =
              event => 'Masters of the Universe Convention',
              :@people,
              ;
@@ -40,7 +40,7 @@ Synopsis
 
                      Dinner at 7PM in the Grand Ballroom. Bring a chair!
                  EOF
-             %data,
+             %context,
              :from([%partials, './views'])
          ).say;
 
@@ -59,16 +59,32 @@ To run tests,
          PERL6LIB=./lib prove -e perl6 -v
 
 
+All spec tests pass; the perl6 branch just updates the .json files to match the .yml sources (needed until someone writes a Perl 6 YAML parser, hint, hint), and adds perl6 lambda code strings for that portion of the specs.
+
+Other Mustache Implementations
+
+There are many, many Mustache implementations in various languages. Some of note are:
+
+  * The original Ruby version https://github.com/defunkt/mustache
+
+  * Twitter's hogan.js https://github.com/twitter/hogan.js
+
+  * mustache.java https://github.com/spullara/mustache.java
+
+  * GRMustache (Objective C) https://github.com/groue/GRMustache
+
+  * mustache.php https://github.com/bobthecow/mustache.php
+
 TODO
 
   * object support (not just hashes and arrays)
 
   * parsed template caching
 
-  * .new(:helpers())
+  * global helpers (context items that float at the top of the stack)
 
-  * pragmas (FILTERS, inheritance)
+  * template inheritance: https://github.com/mustache/spec/issues/38, etc.
 
   * database loader
 
-  * inline loader (POD?)
+  * pragmas (FILTERS?)
