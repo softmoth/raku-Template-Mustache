@@ -46,7 +46,7 @@ sub load-specs (Str $specs-dir) {
     }
 
     my @specs = gather for @files {
-        my %data = from-json slurp $_;
+        my %data = %(from-json slurp $_);
         diag "- $_: {+%data<tests>}";
         for %data<tests>.list -> $t {
             if $t<data><lambda> -> $l {
@@ -62,10 +62,12 @@ sub load-specs (Str $specs-dir) {
     }
 
     plan @specs + 1;
-    todo "You must clone github.com/mustache/spec into '{$specs-dir.IO.dirname}'"
-        if @specs == 0;
-
-    ok @specs > 0 && @specs[0]<template>, "Specs files located";
+    if @specs == 0 {
+        skip "You must clone git@github.com:softmoth/mustache-spec.git into '{$specs-dir.IO.dirname}'";
+    }
+    else {
+        ok @specs[0]<template>, "Valid specs files located";
+    }
 
     if $start > 1 {
         $start -= 2;
