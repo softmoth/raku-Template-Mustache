@@ -20,14 +20,7 @@ sub load-specs (Str $specs-dir) {
     #$start = 122; #$file = '~lambdas';
 
     diag "Reading spec files from '$specs-dir'";
-    my @files = do given dir($specs-dir, :test(rx{ '.json' $ })) {
-        when Failure {
-            ();  # Probably no specs dir
-        }
-        default {
-            .sort;
-        }
-    }
+    my @files = (dir($specs-dir, :test(rx{ '.json' $ })) // ()).sort;
     @files .= grep: { .basename eq "$file.json" } if $file;
 
     my @specs = gather for @files {
