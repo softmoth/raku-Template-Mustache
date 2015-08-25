@@ -181,7 +181,7 @@ class Template::Mustache {
 
         sub get-template($template, :$silent) {
             sub read-template-file($dir is copy) {
-                $dir = $*SPEC.catdir: $*PROGRAM_NAME.IO.dirname, $dir
+                $dir = $*SPEC.catdir: $*PROGRAM-NAME.IO.dirname, $dir
                     if $dir.IO.is-relative;
                 for @$extension -> $ext {
                     my $file = $*SPEC.catfile($dir, $template ~ $ext).IO;
