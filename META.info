@@ -2,6 +2,7 @@
     "perl": "v6",
     "name": "Template::Mustache",
     "version": "*",
+    "author": "Tim Smith",
     "description": "A logic-free, cross-language templating format",
     "depends": [
     ],
