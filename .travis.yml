@@ -5,3 +5,8 @@ language: perl6
 perl6:
   - latest
   - 2015.07
+sudo: false
+install:
+    - rakudobrew build-panda
+    - panda installdeps .
+    - git clone https://github.com/softmoth/mustache-spec.git ../mustache-spec
