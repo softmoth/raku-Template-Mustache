@@ -5,7 +5,7 @@
     "author": "Tim Smith",
     "description": "A logic-free, cross-language templating format",
     "depends": [
-        "JSON::Tiny",  # For Mustache tests
+        "JSON::Tiny",
     ],
     "license" : "https://www.gnu.org/licenses/lgpl.html",
     "production": 1,
