@@ -356,52 +356,52 @@ class Template::Mustache {
 }
 
 =begin pod
-Perl6 implementation of the Mustache template format, L<http://mustache.github.io/>.
+Perl6 implementation of Mustache templates, L<http://mustache.github.io/>.
 
 =head1 Synopsis
 
 =begin code :allow< L B I >
-    use Template::Mustache;
+use Template::Mustache;
 
-    # Call .render as a class method
-    Template::Mustache.render('Hello, {{planet}}!', { planet => 'world' }).say;
+# Call .render as a class method
+Template::Mustache.render('Hello, {{planet}}!', { planet => 'world' }).say;
 
-    # Or instantiate an instance
-    my $stache = Template::Mustache.new: :from<./views>;
+# Or instantiate an instance
+my $stache = Template::Mustache.new: :from<./views>;
 
-    # Subroutines are called
-    say $stache.render('The time is {{time}}', {
-        time => { ~DateTime.new($now).local }
-    });
+# Subroutines are called
+say $stache.render('The time is {{time}}', {
+    time => { ~DateTime.new($now).local }
+});
 
-    my @people =
-        { :name('James T. Kirk'), :title<Captain> },
-        { :name('Wesley'), :title('Dread Pirate'), :emcee },
-        { :name('Dana Scully'), :title('Special Agent') },
-        ;
+my @people =
+    { :name('James T. Kirk'), :title<Captain> },
+    { :name('Wesley'), :title('Dread Pirate'), :emcee },
+    { :name('Dana Scully'), :title('Special Agent') },
+    ;
 
-    # See this template in B<L<./t/views/roster.mustache>>
-    $stache.render('roster', { :@people }).say;
+# See this template in B<L<./t/views/roster.mustache>>
+$stache.render('roster', { :@people }).say;
 
-    my %context =
-        event => 'Masters of the Universe Convention',
-        :@people,
-        ;
-    my %partials =
-        welcome =>
-            qq:b{Welcome to the {{event}}! We’re pleased to have you here.\n\n},
-        ;
+my %context =
+    event => 'Masters of the Universe Convention',
+    :@people,
+    ;
+my %partials =
+    welcome =>
+        qq:b{Welcome to the {{event}}! We’re pleased to have you here.\n\n},
+    ;
 
-    # See this result in B<L<./t/50-readme.t>>
-    Template::Mustache.render(q:to/EOF/,
-            {{> welcome}}
-            {{> roster}}
+# See this result in B<L<./t/50-readme.t>>
+Template::Mustache.render(q:to/EOF/,
+        {{> welcome}}
+        {{> roster}}
 
-                Dinner at 7PM in the Grand Ballroom. Bring a chair!
-            EOF
-        %context,
-        :from([%partials, './views'])
-    ).say;
+            Dinner at 7PM in the Grand Ballroom. Bring a chair!
+        EOF
+    %context,
+    :from([%partials, './views'])
+).say;
 
 =end code
 
@@ -415,14 +415,15 @@ L<https://github.com/mustache/spec/tree/master/specs/>
 To run tests,
 
 =begin code
-    # NB Ensure you are using the default 'perl6' branch, not 'master'
-    git clone git@github.com:softmoth/mustache-spec.git ../mustache-spec
-    PERL6LIB=./lib prove -e perl6 -v
+# NB Ensure you are using the default 'perl6' branch, not 'master'
+git clone git@github.com:softmoth/mustache-spec.git ../mustache-spec
+PERL6LIB=./lib prove -e perl6 -v
 =end code
 
-All spec tests pass; the perl6 branch just updates the .json files to match the
-.yml sources (needed until someone writes a Perl 6 YAML parser, hint, hint),
-and adds perl6 lambda code strings for that portion of the specs.
+All spec tests pass: L<https://travis-ci.org/softmoth/p6-Template-Mustache>.
+The perl6 branch just updates the .json files to match the .yml sources
+(needed until someone writes a Perl 6 YAML parser, hint, hint), and adds
+perl6 lambda code strings for that portion of the specs.
 
 =head1 Other Mustache Implementations
 
