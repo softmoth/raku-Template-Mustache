@@ -1,2 +1,7 @@
 #! /bin/sh
-perl6 --doc=Markdown ./lib/Template/Mustache.pm > README.md
+perl6 --doc=Markdown ./lib/Template/Mustache.pm \
+    | perl6 -pe 'say q{[![Build Status](https://travis-ci.org/softmoth/p6-Template-Mustache.svg?branch=master)](https://travis-ci.org/softmoth/p6-Template-Mustache)} if ++$x == 2' \
+    > README.md
+
+
+

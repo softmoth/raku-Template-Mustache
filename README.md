@@ -1,4 +1,5 @@
 Perl6 implementation of Mustache templates, [http://mustache.github.io/](http://mustache.github.io/).
+[![Build Status](https://travis-ci.org/softmoth/p6-Template-Mustache.svg?branch=master)](https://travis-ci.org/softmoth/p6-Template-Mustache)
 
 Synopsis
 ========
@@ -22,7 +23,7 @@ Synopsis
         { :name('Dana Scully'), :title('Special Agent') },
         ;
 
-    # See this template in Pod::FormattingCode<140277621954048>
+    # See this template in Pod::FormattingCode<140464075814912>
     $stache.render('roster', { :@people }).say;
 
     my %context =
@@ -34,7 +35,7 @@ Synopsis
             qq:b{Welcome to the {{event}}! We’re pleased to have you here.\n\n},
         ;
 
-    # See this result in Pod::FormattingCode<140277621953792>
+    # See this result in Pod::FormattingCode<140464075814656>
     Template::Mustache.render(q:to/EOF/,
             {{> welcome}}
             {{> roster}}
