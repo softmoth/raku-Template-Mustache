@@ -41,7 +41,7 @@ sub load-specs (Str $specs-dir) {
 
     plan @specs + 1;
     if @specs == 0 {
-        skip "You must clone clone git@github.com:softmoth/mustache-spec.git into '{$specs-dir.IO.dirname}'";
+        skip "You must clone git@github.com:softmoth/mustache-spec.git into '{$specs-dir.IO.dirname}'";
     }
     else {
         ok @specs[0]<template>, "Valid specs files located";

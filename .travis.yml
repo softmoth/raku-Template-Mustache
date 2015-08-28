@@ -7,6 +7,6 @@ perl6:
   - 2015.07
 sudo: false
 install:
-    - rakudobrew build-panda $(echo ${TRAVIS_PERL6_VERSION#latest} | sed s/2015.07/adaf6dd/)
+    - rakudobrew build-panda ${TRAVIS_PERL6_VERSION#latest}
     - panda installdeps .
     - git clone https://github.com/softmoth/mustache-spec.git ../mustache-spec
