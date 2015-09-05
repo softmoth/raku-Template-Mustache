@@ -1,4 +1,3 @@
-v6;
 use Test;
 use Template::Mustache;
 
