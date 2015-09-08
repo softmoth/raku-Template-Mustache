@@ -26,4 +26,4 @@ is Template::Mustache.render(q,abc {{foo}} def,, {foo => 123}), 'abc 123 def', '
 
 is Template::Mustache.render(q,{{foo}} {{=<% %>=}} <% foo %> {{ foo }},, {foo => 123}), '123  123 {{ foo }}', '{{=delim=}} substitution';
 
-done;
+done-testing;
