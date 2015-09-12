@@ -52,7 +52,7 @@ sub load-specs (Str $specs-dir) {
                 }
             }
         }
-        take @(%data<tests>);
+        take @(%data<tests>).Slip;
     }
 
     plan @specs + 1;

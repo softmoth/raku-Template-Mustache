@@ -88,7 +88,7 @@ class Template::Mustache {
                 $tag<finalizer>() if $tag<finalizer>;
                 @x.push: $tag;
             }
-            make @x;
+            make @x.Slip;
         }
         method linetag($/) {
             my $tag = $<tag>.made;
@@ -144,7 +144,7 @@ class Template::Mustache {
         $extension = [ $extension ] unless $extension ~~ Positional;
 
         if $from.defined {
-            $from = [ $from ] unless $from ~~ Positional;
+            $from = [ $from, ] unless $from ~~ Positional;
             $from.push: $!from if self and $!from;
         }
         else {
@@ -219,7 +219,7 @@ class Template::Mustache {
 
         sub parse-template($template is copy, :$indent = '', :$delims) {
             $template .= subst(/^^/, $indent, :g) if $indent;
-            my ($*LEFT, $*RIGHT) = @$delims || ( '{{', '}}' );
+            my ($*LEFT, $*RIGHT) = $delims ?? @$delims !! ( '{{', '}}' );
             Template::Mustache::Grammar.parse($template, :$actions)
                 or X::Template::Mustache::CannotParse.new(:str($template)).throw;
             #note $/.made.perl;
