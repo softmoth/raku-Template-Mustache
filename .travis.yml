@@ -4,7 +4,6 @@ branches:
 language: perl6
 perl6:
   - latest
-  - 2015.07
 sudo: false
 install:
     - rakudobrew build-panda ${TRAVIS_PERL6_VERSION#latest}
