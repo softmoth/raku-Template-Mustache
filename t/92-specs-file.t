@@ -21,8 +21,7 @@ for load-specs '../mustache-spec/specs' {
     }
     is $m.render('specs-file-main', $_<data>),
         $_<expected>,
-        "$_<name>: $_<desc>"
-            ;#or last;
+        "$_<name>: $_<desc>";
 }
 
 done-testing;

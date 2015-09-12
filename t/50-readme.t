@@ -6,8 +6,8 @@ plan 4;
 
 is
     Template::Mustache.render('Hello, {{planet}}!', { planet => 'world' }),
-    'Hello, world!',
-    'hello world';
+    "Hello, world!",
+    'Hello world';
 
     my $stache = Template::Mustache.new: :from<./views>;
 
@@ -18,7 +18,7 @@ is
         time => { ~DateTime.new($now).local }
     }),
     "The time is { ~DateTime.new($now).local }",
-    'local time';
+    'Local time';
 
 
 my @people =
@@ -28,7 +28,7 @@ my @people =
     ;
 is
     $stache.render('roster', { :@people }),
-    q:to/EOF/,
+    q:to<EOF>,
         Our esteemed guests:
         - The honorable James T. Kirk (Captain)
         - The honorable Wesley (Dread Pirate) *TONIGHT’S EMCEE*
@@ -36,7 +36,7 @@ is
 
         Enjoy!
         EOF
-    'roster';
+    'Roster';
 
 my %data =
     event => 'Masters of the Universe Convention',
@@ -44,10 +44,10 @@ my %data =
     ;
 my %partials =
     welcome =>
-        qq:b{Welcome to the {{event}}! We’re pleased to have you here.\n\n},
+        Qb[Welcome to the {{event}}! We’re pleased to have you here.\n\n],
     ;
 is
-    Template::Mustache.render(q:to/EOF/,
+    Template::Mustache.render(q:to<EOF>,
             {{> welcome}}
             {{> roster}}
 
@@ -56,7 +56,7 @@ is
         %data,
         :from([%partials, './views'])
     ),
-    q:to/EOF/,
+    q:to<EOF>,
         Welcome to the Masters of the Universe Convention! We’re pleased to have you here.
 
         Our esteemed guests:

@@ -8,7 +8,7 @@ class TestObj {
 
 my $tm = Template::Mustache.new;
 is $tm.render('{{object}}', { object => TestObj.new }),
-    'I am your father!',
+    "I am your father!",
     'Object stringifies';
 
 done-testing;

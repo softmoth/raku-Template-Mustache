@@ -5,8 +5,7 @@ use Template::Mustache;
 for load-specs '../mustache-spec/specs' {
     is Template::Mustache.render($_<template>, $_<data>, :from($_<partials>), :literal),
         $_<expected>,
-        "$_<name>: $_<desc>"
-            ;#or last;
+        "$_<name>: $_<desc>";
 }
 
 done-testing;
