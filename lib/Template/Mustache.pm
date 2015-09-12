@@ -137,19 +137,19 @@ class Template::Mustache {
         }
     }
 
-    method render($template, %context, Bool :$literal, :$from is copy, :$extension is copy) {
+    method render($template, %context, Bool :$literal, :$from, :$extension is copy) {
         if !$extension.defined {
             $extension = self ?? $!extension !! '.mustache';
         }
         $extension = [ $extension ] unless $extension ~~ Positional;
 
-        if $from.defined {
-            $from = [ $from, ] unless $from ~~ Positional;
-            $from.push: $!from if self and $!from;
+        my $froms = [];
+        sub push-to-froms ($_) {
+            when Positional { push $froms, |$_ }
+            when .defined { push $froms, $_ }
         }
-        else {
-            $from = self ?? $!from !! [];
-        }
+        push-to-froms $from;
+        push-to-froms $!from if self;
 
         my $initial-template;
         if $literal {
@@ -171,7 +171,7 @@ class Template::Mustache {
 
         #note "TEMPLATE: $template.perl()";
         #note "DATA:  %context.perl()";
-        #note "FROM: $from.perl()";
+        #note "FROM: $froms.perl()";
         #note "EXTENSION: $extension.perl()";
 
         my $actions = Template::Mustache::Actions.new;
@@ -197,7 +197,7 @@ class Template::Mustache {
                 return Nil;
             }
 
-            for @$from {
+            for @$froms {
                 when Associative {
                     if $_{$template} -> $t { return $t; }
                 }
