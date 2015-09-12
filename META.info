@@ -17,7 +17,7 @@
         "bugtracker": "https://github.com/softmoth/p6-Template-Mustache/issues"
     },
     "test-depends": [
-        "JSON::Tiny",
+        "JSON::Fast",
         "Test"
     ]
 }

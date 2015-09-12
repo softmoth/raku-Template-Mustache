@@ -14,7 +14,7 @@ done-testing;
 
 # TODO Factor this out, it's used in 9*-specs*.t
 sub load-specs (Str $specs-dir) {
-    use JSON::Tiny;
+    use JSON::Fast;
     my ($file, $start) = '', 0;
     # Uncomment and tweak to run a specific test
     #$start = 122; #$file = '~lambdas';
