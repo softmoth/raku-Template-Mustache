@@ -24,7 +24,7 @@ Synopsis
         { :name('Dana Scully'), :title('Special Agent') },
         ;
 
-    # See this template in **[./t/views/roster.mustache](./t/views/roster.mustache)**
+    # See this template in ./t/views/roster.mustache
     $stache.render('roster', { :@people }).say;
 
     my %context =
@@ -36,7 +36,7 @@ Synopsis
             qq:b{Welcome to the {{event}}! We’re pleased to have you here.\n\n},
         ;
 
-    # See this result in **[./t/50-readme.t](./t/50-readme.t)**
+    # See this result in ./t/50-readme.t
     Template::Mustache.render(q:to/EOF/,
             {{> welcome}}
             {{> roster}}
@@ -91,3 +91,8 @@ TODO
   * database loader
 
   * pragmas (FILTERS?)
+
+License
+=======
+
+[Artistic License 2.0](http://www.perlfoundation.org/artistic_license_2_0)

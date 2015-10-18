@@ -7,7 +7,7 @@
     "description": "A logic-free, cross-language templating format",
     "depends": [
     ],
-    "license" : "https://www.gnu.org/licenses/lgpl.html",
+    "license" : "http://www.perlfoundation.org/artistic_license_2_0",
     "production": 1,
     "provides": {
         "Template::Mustache": "lib/Template/Mustache.pm"

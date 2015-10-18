@@ -445,6 +445,10 @@ note are:
 =item database loader
 =item pragmas (FILTERS?)
 
+=head1 License
+
+L<Artistic License 2.0|http://www.perlfoundation.org/artistic_license_2_0>
+
 =end pod
 
 # vim:set ft=perl6:
