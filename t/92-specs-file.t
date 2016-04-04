@@ -22,6 +22,9 @@ for load-specs '../mustache-spec/specs' {
     for $_<partials>.kv -> $name, $text {
         ("$views/$name" ~ $m.extension).IO.spurt: $text;
     }
+    # Perl normalizes line endings when reading from a file, so
+    # we must expect only newline here
+    $_<expected> .= subst(:g, "\r\n", "\n");
     is $m.render('specs-file-main', $_<data>),
         $_<expected>,
         "$_<name>: $_<desc>";
