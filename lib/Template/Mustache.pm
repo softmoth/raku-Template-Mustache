@@ -291,6 +291,10 @@ class Template::Mustache {
                             #note "#** ^ result is $result.perl(), lambda $lambda.perl()";
                             last;
                         }
+						elsif $ctx ~~ Promise {
+							$result = await $ctx;
+							last
+						}
                     }
                     while $result and !$lambda and @field > 1 {
                         @field.shift;
