@@ -183,7 +183,7 @@ class Template::Mustache {
             sub read-template-file($dir is copy) {
                 $dir = $*SPEC.catdir: $*PROGRAM-NAME.IO.dirname, $dir
                     if $dir.IO.is-relative;
-	        my $file = $extension.map({ $*SPEC.catfile($dir, $template ~ $ext).IO }).first(*.e);
+	        my $file = $extension.map({ $*SPEC.catfile($dir, $template ~ $_).IO }).first(*.e);
 	        return $file.slurp if $file;
 	        CATCH {
 		    # RAKUDO: slurp throws X::Adhoc exception
