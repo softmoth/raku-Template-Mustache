@@ -6,6 +6,6 @@ perl6:
   - latest
 sudo: false
 install:
-    - rakudobrew build-panda ${TRAVIS_PERL6_VERSION#latest}
-    - panda installdeps .
-    - git clone https://github.com/softmoth/mustache-spec.git ../mustache-spec
+    - rakudobrew build-zef ${TRAVIS_PERL6_VERSION#latest}
+    - zef --depsonly install .
+    - git clone --depth 1 https://github.com/softmoth/mustache-spec.git ../mustache-spec
