@@ -183,14 +183,14 @@ class Template::Mustache {
             sub read-template-file($dir is copy) {
                 $dir = $*SPEC.catdir: $*PROGRAM-NAME.IO.dirname, $dir
                     if $dir.IO.is-relative;
-	        my $file = $extension.map({ $*SPEC.catfile($dir, $template ~ $_).IO }).first(*.e);
-	        return $file.slurp if $file;
-	        CATCH {
-		    # RAKUDO: slurp throws X::Adhoc exception
-		    default {
-		        # Ignore it
-		    }
-	        }
+                my $file = $extension.map({ $*SPEC.catfile($dir, $template ~ $_).IO }).first(*.e);
+                return $file.slurp if $file;
+                CATCH {
+                    # RAKUDO: slurp throws X::Adhoc exception
+                    default {
+                        # Ignore it
+                    }
+                }
                 #log_warn "Unable to find file for template '$template'" unless $silent;
                 return Nil;
             }
@@ -289,10 +289,10 @@ class Template::Mustache {
                             #note "#** ^ result is $result.perl(), lambda $lambda.perl()";
                             last;
                         }
-						elsif $ctx ~~ Promise {
-							$result = await $ctx;
-							last
-						}
+                        elsif $ctx ~~ Promise {
+                            $result = await $ctx;
+                            last
+                        }
                     }
                     while $result and !$lambda and @field > 1 {
                         @field.shift;
