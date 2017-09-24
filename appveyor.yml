@@ -4,9 +4,16 @@ platform: x64
 
 build: off
 
+shallow_clone: true
+
+# Update *_clear_cache.txt to force re-install
+cache:
+    - C:\Strawberry -> .appveyor_clear_cache.txt
+    - C:\Rakudo -> .appveyor_clear_cache.txt
+
 install:
   - '"C:\Program Files\Microsoft SDKs\Windows\v7.1\Bin\SetEnv.cmd" /x64'
-  - choco install strawberryperl
+  - IF NOT EXIST "C:\Strawberry" choco install strawberryperl
   - SET PATH=C:\strawberry\c\bin;C:\strawberry\perl\site\bin;C:\strawberry\perl\bin;%PATH%
   - git clone https://github.com/tadzik/rakudobrew %USERPROFILE%\rakudobrew
   - SET PATH=%USERPROFILE%\rakudobrew\bin;%PATH%
@@ -16,10 +23,9 @@ install:
   - zef --verbose --depsonly install .
 
 test_script:
-  - perl6 -e 'say "1..1\nok 1"'
-
-shallow_clone: true
+  - zef --force-test test .
+  - zef install .
 
 branches:
   only:
-- master
+    - master
