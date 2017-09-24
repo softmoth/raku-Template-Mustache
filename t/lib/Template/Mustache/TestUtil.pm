@@ -8,7 +8,7 @@ sub load-specs (Str $specs-dir) is export {
     #$start = 122; #$file = '~lambdas';
 
     diag "Reading spec files from '$specs-dir'";
-    my @files = (dir($specs-dir, :test(rx{ '.json' $ })) // ()).sort;
+    my @files = $specs-dir.IO.e ?? dir($specs-dir, :test(rx{ '.json' $ })).sort !! ();
     @files .= grep: { .basename eq "$file.json" } if $file;
 
     my @specs = gather for @files {
