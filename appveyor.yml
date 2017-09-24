@@ -1,0 +1,25 @@
+os: Visual Studio 2015
+
+platform: x64
+
+build: off
+
+install:
+  - '"C:\Program Files\Microsoft SDKs\Windows\v7.1\Bin\SetEnv.cmd" /x64'
+  - choco install strawberryperl
+  - SET PATH=C:\strawberry\c\bin;C:\strawberry\perl\site\bin;C:\strawberry\perl\bin;%PATH%
+  - git clone https://github.com/tadzik/rakudobrew %USERPROFILE%\rakudobrew
+  - SET PATH=%USERPROFILE%\rakudobrew\bin;%PATH%
+  - rakudobrew build moar nom
+  - rakudobrew build zef
+  - cd %APPVEYOR_BUILD_FOLDER%
+  - zef --verbose --depsonly install .
+
+test_script:
+  - perl6 -e 'say "1..1\nok 1"'
+
+shallow_clone: true
+
+branches:
+  only:
+- master
