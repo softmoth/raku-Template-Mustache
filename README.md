@@ -1,7 +1,7 @@
 Perl6 implementation of Mustache templates, [http://mustache.github.io/](http://mustache.github.io/).
 
-[![Build Status](https://travis-ci.org/softmoth/p6-Template-Mustache.svg?branch=master)](https://travis-ci.org/softmoth/p6-Template-Mustache)(Unix)
-[![Build status](https://ci.appveyor.com/api/projects/status/github/softmoth/p6-Template-Mustache?svg=true)](https://ci.appveyor.com/project/softmoth/p6-Template-Mustache/branch/master)(Windows)
+[![Build Status](https://travis-ci.org/softmoth/p6-Template-Mustache.svg?branch=master)](https://travis-ci.org/softmoth/p6-Template-Mustache)
+[![Build status](https://ci.appveyor.com/api/projects/status/github/softmoth/p6-Template-Mustache?branch=master&passingText=Windows%20-%20OK&failingText=Windows%20-%20FAIL&pendingText=Windows%20-%20pending&svg=true)](https://ci.appveyor.com/project/softmoth/p6-Template-Mustache/branch/master)
 
 Synopsis
 ========

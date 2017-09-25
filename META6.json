@@ -16,6 +16,7 @@
     "support": {
         "bugtracker": "https://github.com/softmoth/p6-Template-Mustache/issues"
     },
+    "tags": [ "mustache", "template", "web", "text" ],
     "test-depends": [
         "JSON::Fast",
         "Test"
