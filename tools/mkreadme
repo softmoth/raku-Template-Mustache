@@ -1,4 +1,13 @@
 #! /bin/sh
 perl6 --doc=Markdown ./lib/Template/Mustache.pm \
-    | perl6 -pe 'say Qb{\n[![Build Status](https://travis-ci.org/softmoth/p6-Template-Mustache.svg?branch=master)](https://travis-ci.org/softmoth/p6-Template-Mustache)\n[![Build status](https://ci.appveyor.com/api/projects/status/github/softmoth/p6-Template-Mustache?branch=master&passingText=Windows%20-%20OK&failingText=Windows%20-%20FAIL&pendingText=Windows%20-%20pending&svg=true)](https://ci.appveyor.com/project/softmoth/p6-Template-Mustache/branch/master)} if $++ == 1' \
+    | perl6 -pe '
+
+my $gh-repo = "softmoth/p6-Template-Mustache";
+
+say qq:to/END/ if $++ == 2;
+[![Build Status](https://travis-ci.org/$gh-repo.svg?branch=master)](https://travis-ci.org/$gh-repo)
+[![Windows status](https://ci.appveyor.com/api/projects/status/github/$gh-repo?branch=master&passingText=Windows%20-%20OK&failingText=Windows%20-%20FAIL&pendingText=Windows%20-%20pending&svg=true)](https://ci.appveyor.com/project/$gh-repo/branch/master)
+END
+
+' \
     > README.md
