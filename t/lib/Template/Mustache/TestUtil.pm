@@ -1,14 +1,20 @@
 use v6;
 use Test;
 
-sub load-specs (Str $specs-dir) is export {
+sub load-specs (*@specs-dirs) is export {
     use JSON::Fast;
     my ($file, $start) = '', 0;
     # Uncomment and tweak to run a specific test
     #$start = 122; #$file = '~lambdas';
 
-    diag "Reading spec files from '$specs-dir'";
-    my @files = $specs-dir.IO.e ?? dir($specs-dir, :test(rx{ '.json' $ })).sort !! ();
+    my @files;
+    @specs-dirs ||= < ../mustache-spec/specs t/specs >;
+    for @specs-dirs {
+        .IO.e or next;
+        diag "Reading spec files from '$_'";
+        @files = .IO.dir(:test(rx{ '.json' $ })).sort;
+        last;
+    }
     @files .= grep: { .basename eq "$file.json" } if $file;
 
     my @specs = gather for @files {
@@ -29,7 +35,7 @@ sub load-specs (Str $specs-dir) is export {
 
     plan @specs + 1;
     if @specs == 0 {
-        skip "You must clone git@github.com:softmoth/mustache-spec.git into '{$specs-dir.IO.dirname}'";
+        skip "To run Mustache spec tests, clone git@github.com:softmoth/mustache-spec.git into '{@specs-dirs.head.IO.dirname}'";
     }
     else {
         ok @specs[0]<template>, "Valid specs files located";

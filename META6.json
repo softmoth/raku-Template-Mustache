@@ -1,7 +1,7 @@
 {
     "perl": "6",
     "name": "Template::Mustache",
-    "version": "*",
+    "version": "1.0.1",
     "auth": "github:softmoth",
     "authors": ["Tim Smith"],
     "description": "A logic-free, cross-language templating format",
@@ -19,6 +19,7 @@
     "tags": [ "mustache", "template", "web", "text" ],
     "test-depends": [
         "JSON::Fast",
-        "Test"
+        "Test",
+        "Test::META"
     ]
 }

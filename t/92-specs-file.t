@@ -16,7 +16,7 @@ END { cleanup(:rmdir); }
 
 mkdir $views;
 my $m = Template::Mustache.new: :from($views.IO.basename);
-for load-specs '../mustache-spec/specs' {
+for load-specs() {
     cleanup;
     ("$views/specs-file-main" ~ $m.extension).IO.spurt: $_<template>;
     for $_<partials>.kv -> $name, $text {
