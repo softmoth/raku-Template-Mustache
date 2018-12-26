@@ -4,6 +4,12 @@ my class X::Template::Mustache::CannotParse is Exception {
     method message() { "$!err ❮{$!str}❯" }
 }
 
+my class X::Template::Mustache::FieldNotFound is Exception {
+    has $.err = 'Field not found';
+    has $.str;
+    method message() { "$!err ❮{$!str}❯" }
+}
+
 class Template::Mustache {
     has $.extension = '.mustache';
     has $.from;
@@ -137,7 +143,7 @@ class Template::Mustache {
         }
     }
 
-    method render($template, %context, Bool :$literal, :$from, :$extension is copy) {
+    method render($template, %context, Bool :$literal, :$from, :$extension is copy, Bool :$warn = False) {
         if !$extension.defined {
             $extension = self ?? $!extension !! '.mustache';
         }
@@ -301,6 +307,9 @@ class Template::Mustache {
                     }
                 }
                 #note "get($field) is '$result.perl()'";
+                if !$result && $warn {
+                    note X::Template::Mustache::FieldNotFound.new(:str($field));
+                }
                 return $section ?? ($result, $lambda) !! $result;
             }
 
