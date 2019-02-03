@@ -40,4 +40,9 @@ is Template::Mustache.render(
     '123  123 {{ foo }}',
     '{{=delim=}} substitution';
 
+# issue #25: The digit 0 doesn't print
+is Template::Mustache.render('Zero: "{{ zero }}"', { zero => 0 }),
+    'Zero: "0"',
+    'The digit 0 prints';
+
 done-testing;

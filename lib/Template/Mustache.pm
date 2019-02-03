@@ -290,14 +290,14 @@ class Template::Mustache {
                         # In perl6, {} and [] are falsy, but Mustache
                         # treats them as truthy
                         #note "#** field lookup for @field[0]: '$ctx.perl()'";
-                        if $ctx or $ctx ~~ Associative or $ctx ~~ Positional {
+                        if $ctx ~~ Promise {
+                            $result = await $ctx;
+                            last;
+                        }
+                        elsif $ctx.defined {
                             ($result, $lambda) = resolve($ctx);
                             #note "#** ^ result is $result.perl(), lambda $lambda.perl()";
                             last;
-                        }
-                        elsif $ctx ~~ Promise {
-                            $result = await $ctx;
-                            last
                         }
                     }
                     while $result and !$lambda and @field > 1 {
