@@ -30,13 +30,12 @@ install:
 
   - cd %APPVEYOR_BUILD_FOLDER%
   - zef --verbose --depsonly install .
-  - zef build .
 
 build: off
 
 test_script:
-  - prove -v -e "perl6 -Ilib" t
-  - zef install .
+  - zef --verbose test .
+  - zef --verbose install .
 
 branches:
   only:
