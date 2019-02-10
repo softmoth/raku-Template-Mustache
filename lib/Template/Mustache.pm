@@ -28,6 +28,7 @@ class Template::Mustache {
             $<tag>.made<type> ~~ none(<var qvar mmmvar>)
         }>\h* [\n|$] }
 
+        token ident { <+ graph - punct> <+ graph - [\<\>\{\}\[\]&=%]>* }
         token name { [<ident> * % '.' | ('.')] }
         proto regex tag { <...> }
         regex tag:sym<comment> { $*LEFT '!' (.*?) $*RIGHT }
