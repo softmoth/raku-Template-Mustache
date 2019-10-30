@@ -145,6 +145,10 @@ class Template::Mustache {
     }
 
     method render($template, %context, Bool :$literal, :$from, :$extension is copy, Bool :$warn = False) {
+        state %cache;
+        if $literal and $template and %cache{ $template }:exists {
+             return format( %cache{ $template }, [%context] )
+        }
         if !$extension.defined {
             $extension = self ?? $!extension !! '.mustache';
         }
@@ -183,6 +187,7 @@ class Template::Mustache {
 
         my $actions = Template::Mustache::Actions.new;
         my @parsed = parse-template($initial-template);
+        %cache{ $template } = @parsed if $literal and $template and $template !~~ /'lambda'/;
         return format(@parsed, [%context]);
 
 
