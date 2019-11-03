@@ -146,7 +146,9 @@ class Template::Mustache {
 
     method render($template, %context, Bool :$literal, :$from, :$extension is copy, Bool :$warn = False) {
         state %cache;
-        if $literal and $template and %cache{ $template }:exists {
+        my $froms = [];
+        # only look at cache if the template is a literal and is not a partial
+        if $literal and $template and ! $template ~~ /^ \s* \> / and %cache{ $template }:exists {
              return format( %cache{ $template }, [%context] )
         }
         if !$extension.defined {
@@ -154,7 +156,6 @@ class Template::Mustache {
         }
         $extension = [ $extension ] unless $extension ~~ Positional;
 
-        my $froms = [];
         sub push-to-froms ($_) {
             when Positional { push $froms, |$_ }
             when .defined { push $froms, $_ }
@@ -187,6 +188,7 @@ class Template::Mustache {
 
         my $actions = Template::Mustache::Actions.new;
         my @parsed = parse-template($initial-template);
+        # do not cache lambdas, non-literal templates, or partial templates
         %cache{ $template } = @parsed if $literal and $template and $template !~~ /'lambda'/;
         return format(@parsed, [%context]);
 
