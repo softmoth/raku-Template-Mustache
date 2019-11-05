@@ -16,7 +16,7 @@ Synopsis
 
     # Subroutines are called
     say $stache.render('The time is {{time}}', {
-        time => { ~DateTime.new($now).local }
+        time => { ~DateTime.new(now).local }
     });
 
     my @people =
