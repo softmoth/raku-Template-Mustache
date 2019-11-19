@@ -1,3 +1,8 @@
 t/spec-partials
 Makefile
 blib
+*.iml
+.precomp/
+t/.precomp/
+lib/.precomp/
+.idea/

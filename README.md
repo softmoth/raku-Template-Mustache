@@ -48,6 +48,11 @@ Synopsis
         :from([%partials, './views'])
     ).say;
 
+## Cached Fork
+This is a fork until a cached version is made available by the main maintainer.
+
+There is no change to the API or to passing tests.
+
 More Examples and Tests
 =======================
 
