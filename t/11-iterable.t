@@ -2,6 +2,8 @@ use v6;
 use Test;
 use Template::Mustache;
 
+plan 3;
+
 my $stache = Template::Mustache.new;
 
 sub get-data(Int:D $count = 5) {
@@ -87,3 +89,5 @@ else {
                 ~ " times using {$threads} threads";
     }
 }
+
+done-testing;
