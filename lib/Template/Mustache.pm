@@ -337,11 +337,11 @@ class Template::Mustache {
                             @context.unshift: $_;
                             format(%val<contents>, @context);
                         }
-                        when Positional {
-                            (gather for @$_ -> $datum {
-                                temp @context;
-                                @context.unshift: $datum;
-                                take format(%val<contents>, @context);
+                        when Iterable | Positional {
+                            $_.map( -> $datum {
+                                my @ctx = @context;
+                                @ctx.unshift: $datum;
+                                format(%val<contents>, @ctx);
                             }).join('');
                         }
                         default {
