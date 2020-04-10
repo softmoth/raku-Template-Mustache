@@ -11,5 +11,4 @@ is $m.render('Hello, {{lambda}}!', { lambda => $l.EVAL }),
     "Hello, world!",
     'Interpolate lambda value';
 
-done-testing;
 # vim:set ft=perl6:

@@ -10,6 +10,4 @@ is $m.render('Hello, {{promise}}!', { promise => start {sleep 1; "world"} }),
     "Hello, world!",
     'Interpolate promise object';
 
-done-testing;
 # vim:set ft=perl6:
-

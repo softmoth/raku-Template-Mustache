@@ -70,4 +70,4 @@ is
         EOF
     'Event';
 
-done-testing;
+# vim:set ft=perl6:

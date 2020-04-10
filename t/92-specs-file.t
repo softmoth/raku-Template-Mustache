@@ -30,4 +30,4 @@ for load-specs() {
         "$_<name>: $_<desc>";
 }
 
-done-testing;
+# vim:set ft=perl6:

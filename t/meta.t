@@ -4,6 +4,6 @@ use lib 'lib';
 use Test;
 use Test::META;
 
-meta-ok;
+plan 1;
 
-done-testing;
+meta-ok;

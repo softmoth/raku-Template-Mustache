@@ -2,6 +2,8 @@ use v6;
 use Test;
 use Template::Mustache;
 
+plan 1;
+
 class TestObj {
     method Str() { "I am your father!" }
 }
@@ -11,4 +13,4 @@ is $tm.render('{{object}}', { object => TestObj.new }),
     "I am your father!",
     'Object stringifies';
 
-done-testing;
+# vim:set ft=perl6:

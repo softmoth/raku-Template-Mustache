@@ -2,6 +2,8 @@ use v6;
 use Test;
 use Template::Mustache;
 
+plan 9;
+
 is Template::Mustache.render(
         Qb[  {{string}}\n],
         { string => '---' }),
@@ -59,4 +61,4 @@ is Template::Mustache.render(
     'True',
     'Triple-mustache substitution works when field name contains a minus';
 
-done-testing;
+# vim:set ft=perl6:
