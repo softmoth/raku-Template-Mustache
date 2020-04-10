@@ -36,7 +36,12 @@ class Template::Mustache {
         token tag:sym<qvar> { $*LEFT '&' \h* <name> \h* $*RIGHT }
         token tag:sym<mmmvar> {
             <?{ $*LEFT eq '{{' and $*RIGHT eq '}}' }>
-            '{{{' \h* <name> \h* '}}}'
+
+            # NB: Use $*LEFT and $*RIGHT here to force the grammar to
+            # recognize that this rule is a strictly longer token than
+            # sym<var>. Otherwise, '{{' might be tried before '{{{'!
+
+            $*LEFT '{' \h* <name> \h* '}' $*RIGHT
         }
         regex tag:sym<delim> {
             $*LEFT '=' (\N*?) '=' $*RIGHT

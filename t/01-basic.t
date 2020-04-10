@@ -45,4 +45,18 @@ is Template::Mustache.render('Zero: "{{ zero }}"', { zero => 0 }),
     'Zero: "0"',
     'The digit 0 prints';
 
+# issue #29: Triple Mustache doesn't work when the field name
+# contains a minus
+is Template::Mustache.render(
+    '{{{ bar }}}',
+    %(:bar) ),
+    'True',
+    'Triple-mustache substitution works';
+
+is Template::Mustache.render(
+    '{{{ bar-x }}}',
+    %(:bar-x) ),
+    'True',
+    'Triple-mustache substitution works when field name contains a minus';
+
 done-testing;
