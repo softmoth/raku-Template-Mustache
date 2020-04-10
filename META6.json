@@ -1,7 +1,7 @@
 {
     "perl": "6",
     "name": "Template::Mustache",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "auth": "github:softmoth",
     "authors": ["Tim Smith"],
     "description": "A logic-free, cross-language templating format",
