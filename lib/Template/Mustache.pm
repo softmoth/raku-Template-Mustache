@@ -150,12 +150,28 @@ class Template::Mustache {
     }
 
     method render($template, %context, Bool :$literal, :$from, :$extension is copy, Bool :$warn = False) {
+        state %cache;
+        my $froms = [];
+
+        sub cacheable(Bool :$check-lambda) {
+            # Only cache literals
+            $literal and $template
+                # Don't cache partials
+                and $template !~~ /^ \s* '>' /
+                # Don't cache lambdas. This check is expensive, and not
+                # needed on cache retrieval.
+                and (not $check-lambda or $template !~~ /lambda/)
+        }
+
+        if cacheable() and %cache{ $template }:exists {
+            return format(%cache{ $template }, [%context])
+        }
+
         if !$extension.defined {
             $extension = self ?? $!extension !! '.mustache';
         }
         $extension = [ $extension ] unless $extension ~~ Positional;
 
-        my $froms = [];
         sub push-to-froms ($_) {
             when Positional { push $froms, |$_ }
             when .defined { push $froms, $_ }
@@ -188,6 +204,7 @@ class Template::Mustache {
 
         my $actions = Template::Mustache::Actions.new;
         my @parsed = parse-template($initial-template);
+        %cache{ $template } = @parsed if cacheable(:check-lambda);
         return format(@parsed, [%context]);
 
 
