@@ -250,7 +250,7 @@ class Template::Mustache {
             Template::Mustache::Grammar.parse($template, :$actions)
                 or X::Template::Mustache::CannotParse.new(:str($template)).throw;
             #note $/.made.perl;
-            return @($/.made);
+            return @($/.made // ());
         }
 
         # Can't use HTML::Entity, it doesn't encode &quot; (")
