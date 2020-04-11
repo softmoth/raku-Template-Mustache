@@ -4,8 +4,9 @@ services:
 install:
   - docker pull jjmerelo/test-perl6
   - docker images
-  - docker run -t --entrypoint="/bin/sh" jjmerelo/test-perl6 -c "apk update && apk upgrade && apk add openssl-dev"
-  - docker run -t --entrypoint="/bin/sh" jjmerelo/test-perl6 -c "perl6 --version; which zef "
+  - docker run -t --entrypoint=/bin/sh jjmerelo/test-perl6 -c 'apk update && apk upgrade && apk add openssl-dev'
+  - docker run -t --entrypoint=/bin/sh jjmerelo/test-perl6 -c 'raku --version; which zef; zef --installed list'
 
 script:
-  - TEST_ALL=1 docker run -t -v  $TRAVIS_BUILD_DIR:/test jjmerelo/test-perl6
+  - docker run -t -v $TRAVIS_BUILD_DIR:/test --entrypoint=/bin/sh jjmerelo/test-perl6
+    -c 'zef install . --deps-only; zef --verbose install . --/test; TEST_ALL=1 prove6 -v t'
