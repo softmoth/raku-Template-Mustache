@@ -1,4 +1,3 @@
-use v6;
 use Test;
 
 sub load-specs (*@specs-dirs) is export {
@@ -11,7 +10,7 @@ sub load-specs (*@specs-dirs) is export {
     @specs-dirs ||= < ../mustache-spec/specs t/specs >;
     for @specs-dirs {
         .IO.e or next;
-        diag "Reading spec files from '$_'";
+        #diag "Reading spec files from '$_'";
         @files = .IO.dir(:test(rx{ '.json' $ })).sort;
         last;
     }
@@ -19,7 +18,7 @@ sub load-specs (*@specs-dirs) is export {
 
     my @specs = gather for @files {
         my %data = %(from-json slurp $_);
-        diag "- $_: {+%data<tests>}";
+        #diag "- $_: {+%data<tests>}";
         for %data<tests>.list -> $t {
             if $t<data><lambda> -> $l {
                 if $l<perl6> {
