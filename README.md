@@ -1,8 +1,7 @@
-Perl6 implementation of Mustache templates, [http://mustache.github.io/](http://mustache.github.io/).
+Raku implementation of Mustache templates, [http://mustache.github.io/](http://mustache.github.io/).
 
 [![Build Status](https://travis-ci.org/softmoth/p6-Template-Mustache.svg?branch=master)](https://travis-ci.org/softmoth/p6-Template-Mustache)
 [![Windows status](https://ci.appveyor.com/api/projects/status/github/softmoth/p6-Template-Mustache?branch=master&passingText=Windows%20-%20OK&failingText=Windows%20-%20FAIL&pendingText=Windows%20-%20pending&svg=true)](https://ci.appveyor.com/project/softmoth/p6-Template-Mustache/branch/master)
-
 
 Synopsis
 ========
@@ -58,11 +57,20 @@ The Mustache spec provides a wealth of examples to demonstrate exactly how the f
 
 To run tests,
 
-    # NB Ensure you are using the default 'perl6' branch, not 'master'
-    git clone git@github.com:softmoth/mustache-spec.git ../mustache-spec
-    PERL6LIB=./lib prove -e perl6 -v
+    # Using Raku's prove6 tool:
+    zef install App::Prove6
+    prove6 -Ilib -v
 
-All spec tests pass: [https://travis-ci.org/softmoth/p6-Template-Mustache](https://travis-ci.org/softmoth/p6-Template-Mustache). The perl6 branch just updates the .json files to match the .yml sources (needed until someone writes a Perl 6 YAML parser, hint, hint), and adds perl6 lambda code strings for that portion of the specs.
+    # or using Perl's prove:
+    RAKULIB=./lib prove -e raku -v
+
+All spec tests pass: [https://travis-ci.org/softmoth/p6-Template-Mustache](https://travis-ci.org/softmoth/p6-Template-Mustache). The perl6 branch just updates the .json files to match the .yml sources (needed until someone writes a compliant YAML parser in Raku … hint, hint), and adds Raku lambda code strings for that portion of the specs.
+
+A copy of the tests is distributed in `t/specs`. To check against the specs repository, clone it into `../mustache-spec`:
+
+    # Ensure you are using the default 'perl6' branch, not 'master'
+    git clone git@github.com:softmoth/mustache-spec.git ../mustache-spec
+    git branch -v
 
 Other Mustache Implementations
 ==============================
@@ -82,9 +90,9 @@ There are many, many Mustache implementations in various languages. Some of note
 TODO
 ====
 
-  * object support (not just hashes and arrays)
+  * full object support (with method calls; currently the object is just stringified)
 
-  * parsed template caching
+  * parsed template caching (currently supported for literal template strings)
 
   * global helpers (context items that float at the top of the stack)
 

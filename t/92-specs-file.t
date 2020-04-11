@@ -21,7 +21,7 @@ for load-specs() {
     for $_<partials>.kv -> $name, $text {
         ("$views/$name" ~ $m.extension).IO.spurt: $text;
     }
-    # Perl normalizes line endings when reading from a file, so
+    # Raku normalizes line endings when reading from a file, so
     # we must expect only newline here
     $_<expected> .= subst(:g, "\r\n", "\n");
     is $m.render('specs-file-main', $_<data>),

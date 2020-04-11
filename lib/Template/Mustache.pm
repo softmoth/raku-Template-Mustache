@@ -70,7 +70,7 @@ class Template::Mustache {
                         my $f;
                         while @frames > 1 {
                             $f = @frames.shift;
-                            #note "*****", $f.perl;
+                            #note "*****", $f.raku;
                             last if $f<val> eq $hunk<val>;
                             warn "Closing '$f<val>' section while looking for $hunk<val> section";
                             $f = Nil;
@@ -117,7 +117,7 @@ class Template::Mustache {
                 :type<delim>,
                 :val(~$0),
                 :finalizer({
-                    #note "DEBUG Setting DELIMS ", @delim.perl;
+                    #note "DEBUG Setting DELIMS ", @delim.raku;
                     ($*LEFT, $*RIGHT) = @delim;
                 }),
             }
@@ -197,10 +197,10 @@ class Template::Mustache {
             $initial-template //= '';
         }
 
-        #note "TEMPLATE: $template.perl()";
-        #note "DATA:  %context.perl()";
-        #note "FROM: $froms.perl()";
-        #note "EXTENSION: $extension.perl()";
+        #note "TEMPLATE: $template.raku()";
+        #note "DATA:  %context.raku()";
+        #note "FROM: $froms.raku()";
+        #note "EXTENSION: $extension.raku()";
 
         my $actions = Template::Mustache::Actions.new;
         my @parsed = parse-template($initial-template);
@@ -236,7 +236,7 @@ class Template::Mustache {
                 }
 
                 default {
-                    warn "Ignoring unrecognized :from() entry $_.perl()";
+                    warn "Ignoring unrecognized :from() entry $_.raku()";
                 }
             }
 
@@ -249,7 +249,7 @@ class Template::Mustache {
             my ($*LEFT, $*RIGHT) = $delims ?? @$delims !! ( '{{', '}}' );
             Template::Mustache::Grammar.parse($template, :$actions)
                 or X::Template::Mustache::CannotParse.new(:str($template)).throw;
-            #note $/.made.perl;
+            #note $/.made.raku;
             return @($/.made // ());
         }
 
@@ -289,18 +289,18 @@ class Template::Mustache {
                             $str = $obj();
                         }
                         #note "#** Parsing '$str'";
-                        #note "#** ^ with delims %val<delims>.perl()" if %val<delims>;
+                        #note "#** ^ with delims %val<delims>.raku()" if %val<delims>;
                         my @parsed = parse-template($str, :indent(%val<indent>), :delims(%val<delims>));
                         my $result = format(@parsed, @context);
                         return $result, True;
                     }
                     else {
-                        #note "#** Resolve of $obj.WHAT.perl() as '$obj'";
+                        #note "#** Resolve of $obj.WHAT.raku() as '$obj'";
                         return $obj, False;
                     }
                 }
 
-                #note "GET '$field' from: ", @context.perl;
+                #note "GET '$field' from: ", @context.raku;
                 my $result = '';
                 my $lambda = False;
                 if $field eq '.' {
@@ -310,16 +310,16 @@ class Template::Mustache {
                 else {
                     my @field = $field.split: '.';
                     for @context.map({$^ctx{@field[0]}}) -> $ctx {
-                        # In perl6, {} and [] are falsy, but Mustache
+                        # In Raku, {} and [] are falsy, but Mustache
                         # treats them as truthy
-                        #note "#** field lookup for @field[0]: '$ctx.perl()'";
+                        #note "#** field lookup for @field[0]: '$ctx.raku()'";
                         if $ctx ~~ Promise {
                             $result = await $ctx;
                             last;
                         }
                         elsif $ctx.defined {
                             ($result, $lambda) = resolve($ctx);
-                            #note "#** ^ result is $result.perl(), lambda $lambda.perl()";
+                            #note "#** ^ result is $result.raku(), lambda $lambda.raku()";
                             last;
                         }
                     }
@@ -329,7 +329,7 @@ class Template::Mustache {
                         ($result, $lambda) = resolve($result{@field[0]}) // '';
                     }
                 }
-                #note "get($field) is '$result.perl()'";
+                #note "get($field) is '$result.raku()'";
                 if !$result && $warn {
                      warn X::Template::Mustache::FieldNotFound.new(:str($field));
                 }
@@ -380,17 +380,17 @@ class Template::Mustache {
                 }
                 when 'partial' {
                     my @parsed = parse-template(get-template(%val<val>), :indent(%val<indent>));
-                    #note "PARTIAL FORMAT DATA ", @context.perl;
+                    #note "PARTIAL FORMAT DATA ", @context.raku;
                     format(@parsed, @context);
                 }
-                default { die "Impossible format type: ", %val.perl }
+                default { die "Impossible format type: ", %val.raku }
             }
         }
     }
 }
 
 =begin pod
-Perl6 implementation of Mustache templates, L<http://mustache.github.io/>.
+Raku implementation of Mustache templates, L<http://mustache.github.io/>.
 
 =head1 Synopsis
 
@@ -405,7 +405,7 @@ my $stache = Template::Mustache.new: :from<./views>;
 
 # Subroutines are called
 say $stache.render('The time is {{time}}', {
-    time => { ~DateTime.new($now).local }
+    time => { ~DateTime.new(now).local }
 });
 
 my @people =
@@ -449,15 +449,27 @@ L<https://github.com/mustache/spec/tree/master/specs/>
 To run tests,
 
 =begin code
-# NB Ensure you are using the default 'perl6' branch, not 'master'
-git clone git@github.com:softmoth/mustache-spec.git ../mustache-spec
-PERL6LIB=./lib prove -e perl6 -v
+# Using Raku's prove6 tool:
+zef install App::Prove6
+prove6 -Ilib -v
+
+# or using Perl's prove:
+RAKULIB=./lib prove -e raku -v
 =end code
 
-All spec tests pass: L<https://travis-ci.org/softmoth/p6-Template-Mustache>.
+All spec tests pass: [https://travis-ci.org/softmoth/p6-Template-Mustache](https://travis-ci.org/softmoth/p6-Template-Mustache).
 The perl6 branch just updates the .json files to match the .yml sources
-(needed until someone writes a Perl 6 YAML parser, hint, hint), and adds
-perl6 lambda code strings for that portion of the specs.
+(needed until someone writes a compliant YAML parser in Raku … hint, hint),
+and adds Raku lambda code strings for that portion of the specs.
+
+A copy of the tests is distributed in `t/specs`. To check against the specs
+repository, clone it into `../mustache-spec`:
+
+=begin code
+# Ensure you are using the default 'perl6' branch, not 'master'
+git clone git@github.com:softmoth/mustache-spec.git ../mustache-spec
+git branch -v
+=end code
 
 =head1 Other Mustache Implementations
 
@@ -472,8 +484,8 @@ note are:
 
 =head1 TODO
 
-=item object support (not just hashes and arrays)
-=item parsed template caching
+=item full object support (with method calls; currently the object is just stringified)
+=item parsed template caching (currently supported for literal template strings)
 =item global helpers (context items that float at the top of the stack)
 =item template inheritance: L<https://github.com/mustache/spec/issues/38>, etc.
 =item database loader
@@ -484,5 +496,18 @@ note are:
 L<Artistic License 2.0|http://www.perlfoundation.org/artistic_license_2_0>
 
 =end pod
+
+# Trying to process this file itself results in the following:
+#   $ raku --doc=Markdown lib/Template/Mustache.pm
+#   ===SORRY!=== Error while compiling p6-Template-Mustache/lib/Template/Mustache.pm
+#   P6M Merging GLOBAL symbols failed: duplicate definition of symbol FieldNotFound
+#   at p6-Template-Mustache/lib/Template/Mustache.pm:513
+#
+# Here is a hack to generate README.md from this Pod:
+# raku -MPod::To::Markdown lib/Template/Mustache.pm > README.md
+
+sub MAIN() {
+    print Pod::To::Markdown.render($=pod);
+}
 
 # vim:set ft=perl6:

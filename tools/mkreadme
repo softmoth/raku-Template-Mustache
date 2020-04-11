@@ -1,6 +1,6 @@
 #! /bin/sh
-perl6 --doc=Markdown ./lib/Template/Mustache.pm \
-    | perl6 -pe '
+raku -MPod::To::Markdown ./lib/Template/Mustache.pm \
+    | raku -pe '
 
 my $gh-repo = "softmoth/p6-Template-Mustache";
 
