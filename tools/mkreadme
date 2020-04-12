@@ -1,5 +1,5 @@
 #! /bin/sh
-raku -MPod::To::Markdown ./lib/Template/Mustache.pm \
+raku -MPod::To::Markdown ./lib/Template/Mustache.rakumod \
     | raku -pe '
 
 my $gh-repo = "softmoth/p6-Template-Mustache";

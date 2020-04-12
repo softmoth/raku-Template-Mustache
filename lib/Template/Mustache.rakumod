@@ -498,13 +498,13 @@ L<Artistic License 2.0|http://www.perlfoundation.org/artistic_license_2_0>
 =end pod
 
 # Trying to process this file itself results in the following:
-#   $ raku --doc=Markdown lib/Template/Mustache.pm
-#   ===SORRY!=== Error while compiling p6-Template-Mustache/lib/Template/Mustache.pm
+#   $ raku --doc=Markdown lib/Template/Mustache.rakumod
+#   ===SORRY!=== Error while compiling p6-Template-Mustache/lib/Template/Mustache.rakumod
 #   P6M Merging GLOBAL symbols failed: duplicate definition of symbol FieldNotFound
-#   at p6-Template-Mustache/lib/Template/Mustache.pm:513
+#   at p6-Template-Mustache/lib/Template/Mustache.rakumod:513
 #
 # Here is a hack to generate README.md from this Pod:
-# raku -MPod::To::Markdown lib/Template/Mustache.pm > README.md
+# raku -MPod::To::Markdown lib/Template/Mustache.rakumod > README.md
 
 sub MAIN() {
     print Pod::To::Markdown.render($=pod);
