@@ -1,7 +1,7 @@
-Raku implementation of Mustache templates, [http://mustache.github.io/](http://mustache.github.io/).
-
 [![Build Status](https://travis-ci.org/softmoth/p6-Template-Mustache.svg?branch=master)](https://travis-ci.org/softmoth/p6-Template-Mustache)
-[![Windows status](https://ci.appveyor.com/api/projects/status/github/softmoth/p6-Template-Mustache?branch=master&passingText=Windows%20-%20OK&failingText=Windows%20-%20FAIL&pendingText=Windows%20-%20pending&svg=true)](https://ci.appveyor.com/project/softmoth/p6-Template-Mustache/branch/master)
+[![Windows Status](https://ci.appveyor.com/api/projects/status/github/softmoth/p6-Template-Mustache?branch=master&passingText=Windows%20-%20OK&failingText=Windows%20-%20FAIL&pendingText=Windows%20-%20pending&svg=true)](https://ci.appveyor.com/project/softmoth/p6-Template-Mustache/branch/master)
+
+Raku implementation of Mustache templates, [http://mustache.github.io/](http://mustache.github.io/).
 
 Synopsis
 ========
@@ -106,3 +106,4 @@ License
 =======
 
 [Artistic License 2.0](http://www.perlfoundation.org/artistic_license_2_0)
+

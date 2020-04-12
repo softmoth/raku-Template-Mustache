@@ -1,28 +1,34 @@
 {
-    "perl": "6",
-    "name": "Template::Mustache",
-    "version": "1.1.3",
-    "auth": "github:softmoth",
-    "authors": [
-        "Tim Smith",
-        "Richard Hainsworth"
-    ],
-    "description": "A logic-free, cross-language templating format",
-    "depends": [
-    ],
-    "license" : "Artistic-2.0",
-    "production": 1,
-    "provides": {
-        "Template::Mustache": "lib/Template/Mustache.rakumod"
-    },
-    "source-url": "git://github.com/softmoth/p6-Template-Mustache.git",
-    "support": {
-        "bugtracker": "https://github.com/softmoth/p6-Template-Mustache/issues"
-    },
-    "tags": [ "mustache", "template", "web", "text" ],
-    "test-depends": [
-        "JSON::Fast",
-        "Test",
-        "Test::META"
-    ]
+  "auth" : "github:softmoth",
+  "authors" : [
+    "Tim Smith",
+    "Richard Hainsworth"
+  ],
+  "build-depends" : [ ],
+  "depends" : [ ],
+  "description" : "A logic-free, cross-language templating format",
+  "license" : "Artistic-2.0",
+  "name" : "Template::Mustache",
+  "perl" : "6",
+  "production" : 1,
+  "provides" : {
+    "Template::Mustache" : "lib/Template/Mustache.rakumod"
+  },
+  "resources" : [ ],
+  "source-url" : "git://github.com/softmoth/p6-Template-Mustache.git",
+  "support" : {
+    "bugtracker" : "https://github.com/softmoth/p6-Template-Mustache/issues"
+  },
+  "tags" : [
+    "mustache",
+    "template",
+    "web",
+    "text"
+  ],
+  "test-depends" : [
+    "JSON::Fast",
+    "Test",
+    "Test::META"
+  ],
+  "version" : "1.1.3"
 }
