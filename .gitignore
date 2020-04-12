@@ -1,3 +1,4 @@
+/Template-Mustache-[0-9]*
 t/spec-partials
 Makefile
 blib

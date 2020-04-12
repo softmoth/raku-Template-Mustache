@@ -10,7 +10,7 @@ my class X::Template::Mustache::FieldNotFound is Exception {
     method message() { "$!err ❮{$!str}❯" }
 }
 
-class Template::Mustache:ver<1.1.3>:auth<github:softmoth> {
+class Template::Mustache:ver<1.1.4>:auth<github:softmoth> {
     has $.extension = '.mustache';
     has $.from;
 
