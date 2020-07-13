@@ -363,27 +363,7 @@ class Template::Mustache:ver<1.1.4>:auth<github:softmoth> {
                         return %val<inverted> ?? '' !! $datum;
                     }
 
-                    if !%val<inverted> and $datum -> $_ {
-                        when Associative {
-                            temp @context;
-                            @context.unshift: $_;
-                            format(%val<contents>, @context);
-                        }
-                        when Iterable | Positional {
-                            $_.map( -> $datum {
-                                my @ctx = @context;
-                                @ctx.unshift: $datum;
-                                format(%val<contents>, @ctx);
-                            }).join('');
-                        }
-                        default {
-                            format(%val<contents>, @context);
-                        }
-                    }
-                    elsif %val<inverted> and !$datum {
-                        format(%val<contents>, @context);
-                    }
-                    elsif %val<inherits> {
+                    if %val<inherits> {
                         my @parsed = parse-template(get-template(%val<val>),
                                 :indent(%val<indent>));
 
@@ -413,6 +393,26 @@ class Template::Mustache:ver<1.1.4>:auth<github:softmoth> {
                     }
                     elsif %val<override> {
                         format(%*overrides{%val<val>} // %val<contents>, @context);
+                    }
+                    elsif !%val<inverted> and $datum -> $_ {
+                        when Associative {
+                            temp @context;
+                            @context.unshift: $_;
+                            format(%val<contents>, @context);
+                        }
+                        when Iterable | Positional {
+                            $_.map( -> $datum {
+                                my @ctx = @context;
+                                @ctx.unshift: $datum;
+                                format(%val<contents>, @ctx);
+                            }).join('');
+                        }
+                        default {
+                            format(%val<contents>, @context);
+                        }
+                    }
+                    elsif %val<inverted> and !$datum {
+                        format(%val<contents>, @context);
                     }
                     else {
                         #note "!!! EMPTY SECTION '%val<val>'";
