@@ -1,0 +1,13 @@
+{{< layout }}
+
+    {{$ page_title }}{{ article.title }}{{/ page_title }}
+
+    {{$ page_content }}
+    {{# article }}
+    by <i>{{ author }}</i>
+
+    {{{ body }}}
+    {{/ article }}
+    {{/ page_content }}
+
+{{/ layout }}
