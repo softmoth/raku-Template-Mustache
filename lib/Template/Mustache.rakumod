@@ -10,6 +10,12 @@ my class X::Template::Mustache::FieldNotFound is Exception {
     method message() { "$!err ❮{$!str}❯" }
 }
 
+my class X::Template::Mustache::InheritenceLost is Exception {
+    has $.err = 'Non-override content in inheritence section';
+    has $.str;
+    method message() { "$!err ❮{$!str}❯" }
+}
+
 class Template::Mustache:ver<1.1.4>:auth<github:softmoth> {
     has $.extension = '.mustache';
     has $.from;
@@ -28,7 +34,7 @@ class Template::Mustache:ver<1.1.4>:auth<github:softmoth> {
             $<tag>.made<type> ~~ none(<var qvar mmmvar>)
         }>\h* [\n|$] }
 
-        token ident { <+ graph - punct> <+ graph - [\<\>\{\}\[\]&=%]>* }
+        token ident { <+ graph - punct> <+ graph - [\<\>\{\}\[\]&=%$]>* }
         token name { [<ident> * % '.' | ('.')] }
         proto regex tag { <...> }
         regex tag:sym<comment> { $*LEFT '!' (.*?) $*RIGHT }
@@ -47,7 +53,7 @@ class Template::Mustache:ver<1.1.4>:auth<github:softmoth> {
             $*LEFT '=' (\N*?) '=' $*RIGHT
         }
         regex tag:sym<section> {
-            $*LEFT (< # ^ / >) \h* (\N*?) \h* $*RIGHT
+            $*LEFT (< # ^ / \< $ >) \h* (\N*?) \h* $*RIGHT
         }
         regex tag:sym<partial> {
             $*LEFT '>' \h* (\N*?) \h* $*RIGHT
@@ -141,6 +147,8 @@ class Template::Mustache:ver<1.1.4>:auth<github:softmoth> {
                 :val(~$1.trim),
                 :on($0 ne '/'),
                 :inverted($0 eq '^'),
+                :inherits($0 eq '<'),
+                :override($0 eq '$'),
                 :pos($0 eq '/' ?? $/.from !! $/.to),
             }
         }
@@ -152,6 +160,7 @@ class Template::Mustache:ver<1.1.4>:auth<github:softmoth> {
     method render($template, %context, Bool :$literal, :$from, :$extension is copy, Bool :$warn = False) {
         state %cache;
         my $froms = [];
+        my %*overrides;
 
         sub cacheable(Bool :$check-lambda) {
             # Only cache literals
@@ -266,6 +275,7 @@ class Template::Mustache:ver<1.1.4>:auth<github:softmoth> {
         }
 
         # TODO Track recursion depth and throw if > 100?
+        proto sub format(|) {*}
         multi sub format(@val, @context) {
             #note "** \@ ...";
             my $j = join '', @val.map: { format($_, @context) };
@@ -372,6 +382,36 @@ class Template::Mustache:ver<1.1.4>:auth<github:softmoth> {
                     }
                     elsif %val<inverted> and !$datum {
                         format(%val<contents>, @context);
+                    }
+                    elsif %val<inherits> {
+                        my @parsed = parse-template(get-template(%val<val>),
+                                :indent(%val<indent>));
+
+                        for %val<contents><> {
+                            when Associative {
+                                .<override>
+                                    or die X::Template::Mustache::InheritenceLost
+                                        .new: :str((%val<val> => .<val>)
+                                                        .fmt('< %s: # %s'));
+                                %*overrides{.<val>} = .<contents>;
+                            }
+                            when Str {
+                                /\S/
+                                    and die X::Template::Mustache::InheritenceLost
+                                        .new: :str((%val<val> => .raku)
+                                                        .fmt('< %s: %s'));
+                            }
+                            default {
+                                die X::Template::Mustache::InheritenceLost
+                                    .new: :str((%val<val> => .gist)
+                                                    .fmt('< %s: ? %s'));
+                            }
+                        }
+
+                        format(@parsed, @context);
+                    }
+                    elsif %val<override> {
+                        format(%*overrides{%val<val>} // %val<contents>, @context);
                     }
                     else {
                         #note "!!! EMPTY SECTION '%val<val>'";

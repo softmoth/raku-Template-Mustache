@@ -47,6 +47,14 @@ Synopsis
         :from([%partials, './views'])
     ).say;
 
+Extensions
+==========
+
+Template inheritence
+--------------------
+
+Partial support for `hogan.js`-style [template inheritence](https://github.com/groue/GRMustache/blob/master/Guides/template_inheritance.md) is available. See the `"todo"` tests in [t/specs/inheritable_partials.json](t/specs/inheritable_partials.json) to know what is not yet implemented.
+
 More Examples and Tests
 =======================
 
@@ -71,6 +79,8 @@ A copy of the tests is distributed in `t/specs`. To check against the specs repo
     git clone git@github.com:softmoth/mustache-spec.git ../mustache-spec
     git branch -v
 
+The test file `t/specs/inheritable_partials.json` is taken from [groue/GRMustache](https:/github.com/groue/GRMustache).
+
 Other Mustache Implementations
 ==============================
 
@@ -94,8 +104,6 @@ TODO
   * parsed template caching (currently supported for literal template strings)
 
   * global helpers (context items that float at the top of the stack)
-
-  * template inheritance: [https://github.com/mustache/spec/issues/38](https://github.com/mustache/spec/issues/38), etc.
 
   * database loader
 

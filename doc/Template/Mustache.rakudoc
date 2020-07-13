@@ -49,6 +49,16 @@ Template::Mustache.render(q:to/EOF/,
 
 =end code
 
+=head1 Extensions
+
+=head2 Template inheritence
+
+Partial support for C<hogan.js>-style
+L<template inheritence|https://github.com/groue/GRMustache/blob/master/Guides/template_inheritance.md>
+is available. See the C<"todo"> tests in
+L<t/specs/inheritable_partials.json>
+to know what is not yet implemented.
+
 =head1 More Examples and Tests
 
 The Mustache spec provides a wealth of examples to demonstrate exactly how the
@@ -72,14 +82,17 @@ The perl6 branch just updates the .json files to match the .yml sources
 (needed until someone writes a compliant YAML parser in Raku … hint, hint),
 and adds Raku lambda code strings for that portion of the specs.
 
-A copy of the tests is distributed in `t/specs`. To check against the specs
-repository, clone it into `../mustache-spec`:
+A copy of the tests is distributed in C<t/specs>. To check against the specs
+repository, clone it into C<../mustache-spec>:
 
 =begin code
 # Ensure you are using the default 'perl6' branch, not 'master'
 git clone git@github.com:softmoth/mustache-spec.git ../mustache-spec
 git branch -v
 =end code
+
+The test file C<t/specs/inheritable_partials.json> is taken from
+L<groue/GRMustache|https:/github.com/groue/GRMustache>.
 
 =head1 Other Mustache Implementations
 
@@ -97,7 +110,6 @@ note are:
 =item full object support (with method calls; currently the object is just stringified)
 =item parsed template caching (currently supported for literal template strings)
 =item global helpers (context items that float at the top of the stack)
-=item template inheritance: L<https://github.com/mustache/spec/issues/38>, etc.
 =item database loader
 =item pragmas (FILTERS?)
 
