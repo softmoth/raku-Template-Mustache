@@ -23,7 +23,6 @@
     },
     {
       "name": "Inherited partials can embed inherited partials",
-      "todo": "Double-embedded inheritence NYI",
       "data": { },
       "template": "before1 {{<partial1}}{{/partial1}} after1",
       "partials": {
@@ -189,7 +188,6 @@
     },
     {
       "name": "Inheritable section context is cleaned after inherited partial rendering.",
-      "todo": "Buggy inheritence context stack",
       "data": { },
       "template": "{{$section}}rendered{{/section}}|{{<partial}}{{$section}}inherited{{/section}}{{/partial}}|{{$section}}rendered{{/section}}",
       "partials": { "partial": "{{$section}}ignored{{/section}}" },

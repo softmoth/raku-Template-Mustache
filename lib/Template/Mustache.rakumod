@@ -387,6 +387,7 @@ class Template::Mustache:ver<1.1.4>:auth<github:softmoth> {
                         my @parsed = parse-template(get-template(%val<val>),
                                 :indent(%val<indent>));
 
+                        temp %*overrides;
                         for %val<contents><> {
                             when Associative {
                                 .<override>
