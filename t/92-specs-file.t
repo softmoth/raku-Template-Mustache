@@ -24,9 +24,10 @@ for load-specs() {
     # Raku normalizes line endings when reading from a file, so
     # we must expect only newline here
     $_<expected> .= subst(:g, "\r\n", "\n");
-    is $m.render('specs-file-main', $_<data>),
-        $_<expected>,
-        "$_<name>: $_<desc>";
+
+    my $result = try $m.render: 'specs-file-main', $_<data>;
+    if $_<todo> -> $todo { todo $todo }
+    is $result, $_<expected>, join(': ', $_<name desc>.grep(*.defined));
 }
 
 # vim:set ft=perl6:
