@@ -17,8 +17,9 @@ my class X::Template::Mustache::InheritenceLost is Exception {
 }
 
 class Template::Mustache:ver<1.1.4>:auth<github:softmoth> {
-    has $.extension = '.mustache';
+    has $.extension = 'mustache';
     has $.from;
+    has %!cache;
 
     #use Grammar::Tracer;
     grammar Template::Mustache::Grammar {
@@ -103,7 +104,7 @@ class Template::Mustache:ver<1.1.4>:auth<github:softmoth> {
             my @x;
             @x.push(~$0) if $0.chars;
             for $<linetag tag>.grep(*.defined)».made -> $tag {
-                $tag<finalizer>() if $tag<finalizer>;
+                ($tag<finalizer>:delete)() if $tag<finalizer>;
                 @x.push: $tag;
             }
             make @x.Slip;
@@ -157,29 +158,29 @@ class Template::Mustache:ver<1.1.4>:auth<github:softmoth> {
         }
     }
 
-    method render($template, %context, Bool :$literal, :$from, :$extension is copy, Bool :$warn = False) {
-        state %cache;
+    method render(|c (
+        $template,
+        %context,
+        :$from,
+        :$extension is copy,
+        Bool :$literal,
+        Bool :$warn = False,
+    )) {
+        unless self.DEFINITE {
+            # If called as Template::Mustache.render(), create an instance
+            # to run with
+            return self.new.render: |c;
+        }
+
         my $froms = [];
         my %*overrides;
 
-        sub cacheable(Bool :$check-lambda) {
-            # Only cache literals
-            $literal and $template
-                # Don't cache partials
-                and $template !~~ /^ \s* '>' /
-                # Don't cache lambdas. This check is expensive, and not
-                # needed on cache retrieval.
-                and (not $check-lambda or $template !~~ /lambda/)
+        if not $extension.defined {
+            $extension = ($!extension if self) // 'mustache';
         }
-
-        if cacheable() and %cache{ $template }:exists {
-            return format(%cache{ $template }, [%context])
-        }
-
-        if !$extension.defined {
-            $extension = self ?? $!extension !! '.mustache';
-        }
-        $extension = [ $extension ] unless $extension ~~ Positional;
+        # Allow user to specify '.mustache' or 'mustache' as extension
+        $extension = map { .starts-with('.') ?? .substr(1) !! $_ }, @$extension;
+        $extension = [ $extension<> ] unless $extension ~~ Positional;
 
         sub push-to-froms ($_) {
             when Positional { push $froms, |$_ }
@@ -188,76 +189,97 @@ class Template::Mustache:ver<1.1.4>:auth<github:softmoth> {
         push-to-froms $from;
         push-to-froms $!from if self;
 
-        my $initial-template;
-        if $literal {
-            # Use $template itself as the template text
-            # Either :from(Str) was specified in caller, or no :from() and
-            # called via type object (no instance to find default)
-            $initial-template = $template;
-        }
-        elsif get-template($template, :silent) -> $t {
-            $initial-template = $t;
-        }
-        else {
-            # Couldn't find the initial template, assume literal
-            # unless explicitly prohibited
-            $initial-template = $template unless $literal.defined;
-            #log_warn "Template '$template' undefined";
-            $initial-template //= '';
-        }
+        my $actions = Template::Mustache::Actions.new;
 
         #note "TEMPLATE: $template.raku()";
-        #note "DATA:  %context.raku()";
         #note "FROM: $froms.raku()";
         #note "EXTENSION: $extension.raku()";
+        my @parsed = get-template($template, :$literal);
 
-        my $actions = Template::Mustache::Actions.new;
-        my @parsed = parse-template($initial-template);
-        %cache{ $template } = @parsed if cacheable(:check-lambda);
+        #note "PARSED: @parsed.raku()";
+        #note "CONTEXT:  %context.raku()";
         return format(@parsed, [%context]);
 
-
-        sub get-template($template, :$silent) {
-            sub read-template-file($dir is copy) {
-                $dir = $*SPEC.catdir: $*PROGRAM-NAME.IO.dirname, $dir
-                    if $dir.IO.is-relative;
-                my $file = $extension.map({ $*SPEC.catfile($dir, $template ~ $_).IO }).first(*.e);
-                return $file.slurp if $file;
-                CATCH {
-                    # RAKUDO: slurp throws X::Adhoc exception
-                    default {
-                        # Ignore it
-                    }
-                }
-                #log_warn "Unable to find file for template '$template'" unless $silent;
-                return Nil;
-            }
-
-            for @$froms {
-                when Associative {
-                    if $_{$template} -> $t { return $t; }
-                }
-
-                when any(Stringy, IO::Path) {
-                    # Look for $template file in this directory
-                    my $t = read-template-file($_);
-                    return $t if $t.defined;
-                }
-
-                default {
-                    warn "Ignoring unrecognized :from() entry $_.raku()";
-                }
-            }
-
-            #log_warn "Unable to get template '$template' from anywhere" unless $silent;
-            return '';
+        sub find-template-file($template, $dir is copy) {
+            $dir = $dir.IO;
+            $dir = $*PROGRAM.sibling($dir).resolve(:completely) if $dir.is-relative;
+            $extension.map({
+                $dir.add($template).extension(:0parts, $_)
+            }).first(*.e);
         }
 
-        sub parse-template($template is copy, :$indent = '', :$delims) {
-            $template .= subst(/^^/, $indent, :g) if $indent;
+        sub get-template($template, :$delims, :$indent, :$literal) {
+            my $specific = specify-template;
+            my $key = "{$indent // ''}>$specific";
+            my @parsed;
+            if %!cache{ $key }:exists {
+                @parsed = %!cache{ $key };
+            }
+            else {
+                my $str = do given $specific {
+                    when IO::Path {
+                        CATCH {
+                            # RAKUDO: slurp throws X::Adhoc exception
+                            default {
+                                # Ignore it
+                            }
+                        }
+
+                        .slurp;
+                    }
+
+                    default {
+                        $_
+                    }
+                }
+
+                # TODO Organize the parsed results so they can be indented
+                # on the fly, and move indent action into format(). That way
+                # we can cache just one version of the template and use that
+                # everywhere it is used.
+                $str .= subst(/^^/, $indent, :g) if $indent;
+
+                @parsed = parse-template($str, :$delims);
+                %!cache{ $key } = @parsed;
+            }
+
+            #note "Template for '$key': ", @parsed.raku;
+            return @parsed;
+
+            sub specify-template {
+                if $literal {
+                    # Use $template itself as the template text
+                    return $template
+                }
+
+                for @$froms {
+                    when Associative {
+                        .return with $_{$template};
+                    }
+
+                    when any(Stringy, IO::Path) {
+                        .resolve(:completely).return
+                            with find-template-file($template, $_);
+                    }
+
+                    default {
+                        warn "Ignoring unrecognized :from() entry $_.raku()";
+                    }
+                }
+
+                # Couldn't find the initial template, assume literal unless
+                # explicitly prohibited
+                return $template unless $literal.defined;
+
+                #warn "Template '$template' undefined";
+                return '';
+            }
+        }
+
+        sub parse-template($str, :$delims) {
             my ($*LEFT, $*RIGHT) = $delims ?? @$delims !! ( '{{', '}}' );
-            Template::Mustache::Grammar.parse($template, :$actions)
-                or X::Template::Mustache::CannotParse.new(:str($template)).throw;
+            Template::Mustache::Grammar.parse($str, :$actions)
+                or X::Template::Mustache::CannotParse.new(:$str).throw;
             #note $/.made.raku;
             return @($/.made // ());
         }
@@ -300,7 +322,8 @@ class Template::Mustache:ver<1.1.4>:auth<github:softmoth> {
                         }
                         #note "#** Parsing '$str'";
                         #note "#** ^ with delims %val<delims>.raku()" if %val<delims>;
-                        my @parsed = parse-template($str, :indent(%val<indent>), :delims(%val<delims>));
+                        # literal: don't allow lambda return a template name
+                        my @parsed = get-template($str, :delims(%val<delims>), :indent(%val<indent>), :literal);
                         my $result = format(@parsed, @context);
                         return $result, True;
                     }
@@ -354,7 +377,6 @@ class Template::Mustache:ver<1.1.4>:auth<github:softmoth> {
                 when 'mmmvar' { get(@context, %val<val>) }
                 when 'delim' { '' }
                 when 'section' {
-                    #note "SECTION '%val<val>'";
                     my ($datum, $lambda) = get(@context, %val<val>, :section);
                     if $lambda {
                         # The section was resolved by calling a lambda, which
@@ -364,8 +386,7 @@ class Template::Mustache:ver<1.1.4>:auth<github:softmoth> {
                     }
 
                     if %val<inherits> {
-                        my @parsed = parse-template(get-template(%val<val>),
-                                :indent(%val<indent>));
+                        my @parsed = get-template(%val<val>, :delims(%val<delims>), :indent(%val<indent>), :!literal);
 
                         temp %*overrides;
                         for %val<contents><> {
@@ -420,7 +441,8 @@ class Template::Mustache:ver<1.1.4>:auth<github:softmoth> {
                     }
                 }
                 when 'partial' {
-                    my @parsed = parse-template(get-template(%val<val>), :indent(%val<indent>));
+                    #note "- Looking up partial for {%val<val>}";
+                    my @parsed = get-template(%val<val>, :delims(%val<delims>), :indent(%val<indent>), :!literal);
                     #note "PARTIAL FORMAT DATA ", @context.raku;
                     format(@parsed, @context);
                 }

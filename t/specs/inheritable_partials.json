@@ -41,7 +41,6 @@
     },
     {
       "name": "Inherited partials can embed partials",
-      "todo": "Double-embedded inheritence NYI",
       "data": { },
       "template": "before1 {{<partial1}}{{/partial1}} after1",
       "partials": {
@@ -65,7 +64,6 @@
     },
     {
       "name": "Templates can override duplicated inheritable sections",
-      "todo": "Double-embedded inheritence NYI",
       "data": { },
       "template": "{{<partial}}{{$inheritable}}inherited{{/inheritable}}{{/partial}}",
       "partials": { "partial": "{{$inheritable}}ignored{{/inheritable}} {{$inheritable}}ignored{{/inheritable}}" },
@@ -146,7 +144,6 @@
     },
     {
       "name": "Templates can override inheritable sections in inherited partials embedded in inherited partials",
-      "todo": "Double-embedded inheritence NYI",
       "data": { },
       "template": "{{<partial1}}{{$inheritable}}inherited{{/inheritable}}{{/partial1}}",
       "partials": {
