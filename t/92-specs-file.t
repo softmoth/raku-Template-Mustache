@@ -15,19 +15,25 @@ END { cleanup(:rmdir); }
 
 mkdir $views;
 my $m = Template::Mustache.new: :from($views.IO.basename);
-for load-specs() {
-    cleanup;
-    ("$views/specs-file-main" ~ $m.extension).IO.spurt: $_<template>;
-    for $_<partials>.kv -> $name, $text {
-        ("$views/$name" ~ $m.extension).IO.spurt: $text;
-    }
-    # Raku normalizes line endings when reading from a file, so
-    # we must expect only newline here
-    $_<expected> .= subst(:g, "\r\n", "\n");
 
-    my $result = try $m.render: 'specs-file-main', $_<data>;
-    if $_<todo> -> $todo { todo $todo }
-    is $result, $_<expected>, join(': ', $_<name desc>.grep(*.defined));
+for load-specs().sort -> $spec {
+    subtest $spec.key => sub {
+        plan +$spec.value;
+        for $spec.value<> {
+            cleanup;
+            ("$views/specs-file-main" ~ $m.extension).IO.spurt: $_<template>;
+            for $_<partials>.kv -> $name, $text {
+                ("$views/$name" ~ $m.extension).IO.spurt: $text;
+            }
+            # Raku normalizes line endings when reading from a file, so
+            # we must expect only newline here
+            $_<expected> .= subst(:g, "\r\n", "\n");
+
+            my $result = try $m.render: 'specs-file-main', $_<data>;
+            if $_<todo> -> $todo { todo $todo }
+            is $result, $_<expected>, join(': ', $_<name desc>.grep(*.defined));
+        }
+    }
 }
 
 # vim:set ft=perl6:

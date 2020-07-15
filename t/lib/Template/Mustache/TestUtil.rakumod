@@ -2,9 +2,11 @@ use Test;
 
 sub load-specs (*@specs-dirs) is export {
     use JSON::Fast;
-    my ($file, $start) = '', 0;
-    # Uncomment and tweak to run a specific test
-    #$start = 122; #$file = '~lambdas';
+    # Set to run a specific test (e.g. '~lambda:5')
+    my ($file, $start, $count) = split ':', %*ENV<TEST_SPEC_START> // '';
+    $file ||= '';
+    $start ||= 0;
+    $count ||= Inf;
 
     my @files;
     @specs-dirs ||= < ../mustache-spec/specs t/specs >;
@@ -16,7 +18,8 @@ sub load-specs (*@specs-dirs) is export {
     }
     @files .= grep: { .basename eq "$file.json" } if $file;
 
-    my @specs = gather for @files {
+    my %specs;
+    for @files {
         my %data = %(from-json slurp $_);
         #diag "- $_: {+%data<tests>}";
         for %data<tests>.list -> $t {
@@ -29,27 +32,23 @@ sub load-specs (*@specs-dirs) is export {
                 }
             }
         }
-        take @(%data<tests>).Slip;
+        %specs{ .basename } := %data<tests>;
     }
 
-    plan @specs + 1;
-    if @specs == 0 {
+    plan +%specs + 1;
+    if %specs.values».elems.sum == 0 {
         skip "To run Mustache spec tests, clone git@github.com:softmoth/mustache-spec.git into '{@specs-dirs.head.IO.dirname}'";
     }
     else {
-        ok @specs[0]<template>, "Valid specs files located";
+        ok %specs.head.value.head<template>, "Valid specs files located";
+
+        if $start > 0 {
+            $start = min($start, %specs.head.value.elems) - 1;
+            %specs.head.value = %specs.head.value[$start .. $start + $count - 1];
+        }
     }
 
-    if $start > 1 {
-        $start -= 2;
-        $start = min($start, +@specs);
-        skip "Getting right to the problem", $start;
-    }
-    else {
-        $start = 0;
-    }
-
-    return @specs[$start .. *];
+    return %specs;
 }
 
 # vim:set ft=perl6:
