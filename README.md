@@ -62,18 +62,9 @@ The Mustache spec provides a wealth of examples to demonstrate exactly how the f
 
 [https://github.com/mustache/spec/tree/master/specs/](https://github.com/mustache/spec/tree/master/specs/)
 
-To run tests,
+All of the official Mustache spec tests pass. An updated copy of the tests is distributed in `t/specs`.
 
-    # Using Raku's prove6 tool:
-    zef install App::Prove6
-    prove6 -Ilib -v
-
-    # or using Perl's prove:
-    RAKULIB=./lib prove -e raku -v
-
-All spec tests pass: [https://travis-ci.org/softmoth/p6-Template-Mustache](https://travis-ci.org/softmoth/p6-Template-Mustache). The perl6 branch just updates the .json files to match the .yml sources (needed until someone writes a compliant YAML parser in Raku … hint, hint), and adds Raku lambda code strings for that portion of the specs.
-
-An updated copy of the tests is distributed in `t/specs`. To check against the official (outdated) specs repository, clone it into `../mustache-spec`:
+To check against the official (outdated) specs repository, clone it into `../mustache-spec`: [https://travis-ci.org/softmoth/raku-Template-Mustache](https://travis-ci.org/softmoth/raku-Template-Mustache). The `perl6` branch just updates the .json files to match the .yml sources (needed until someone writes a compliant YAML parser in Raku … hint, hint), and adds Raku lambda code strings for that portion of the specs.
 
     # Ensure you are using the default 'perl6' branch, not 'master'
     git clone git@github.com:softmoth/mustache-spec.git ../mustache-spec
