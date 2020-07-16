@@ -16,7 +16,7 @@ my class X::Template::Mustache::InheritenceLost is Exception {
     method message() { "$!err ❮{$!str}❯" }
 }
 
-class Template::Mustache:ver<1.1.4>:auth<github:softmoth> {
+class Template::Mustache:ver<1.2.0>:auth<github:softmoth> {
     has $.extension = 'mustache';
     has $.from;
     has %!cache;

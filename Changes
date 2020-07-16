@@ -2,5 +2,9 @@ Revision history for Template-Mustache
 
 {{$NEXT}}
 
+1.2.0  2020-07-15T23:33:07-04:00
+    - Cache everything, including files, partials and lambdas
+    - Template inheritance: Partials that can override values from parent
+
 1.1.4  2020-05-06T17:49:36-04:00
     - Initial CPAN version, see source repository for history
