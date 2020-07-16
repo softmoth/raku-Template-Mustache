@@ -11,7 +11,7 @@ for load-specs().sort -> $spec {
             my $result = try Template::Mustache.render:
                     $_<template>, $_<data>, :from($_<partials>), :literal;
             if $_<todo> -> $todo { todo $todo }
-            is $result, $_<expected>, join(': ', $_<name desc>.grep(*.defined));
+            is $result // $!, $_<expected>, join(': ', $_<name desc>.grep(*.defined));
         }
     }
 }

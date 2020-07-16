@@ -53,7 +53,7 @@ Extensions
 Template inheritence
 --------------------
 
-Partial support for `hogan.js`-style [template inheritence](https://github.com/groue/GRMustache/blob/master/Guides/template_inheritance.md) is available. See the `"todo"` tests in [t/specs/inheritable_partials.json](t/specs/inheritable_partials.json) to know what is not yet implemented.
+Support for `hogan.js`-style [template inheritence](https://github.com/groue/GRMustache/blob/master/Guides/template_inheritance.md) is available.
 
 More Examples and Tests
 =======================
@@ -73,7 +73,7 @@ To run tests,
 
 All spec tests pass: [https://travis-ci.org/softmoth/p6-Template-Mustache](https://travis-ci.org/softmoth/p6-Template-Mustache). The perl6 branch just updates the .json files to match the .yml sources (needed until someone writes a compliant YAML parser in Raku … hint, hint), and adds Raku lambda code strings for that portion of the specs.
 
-A copy of the tests is distributed in `t/specs`. To check against the specs repository, clone it into `../mustache-spec`:
+An updated copy of the tests is distributed in `t/specs`. To check against the official (outdated) specs repository, clone it into `../mustache-spec`:
 
     # Ensure you are using the default 'perl6' branch, not 'master'
     git clone git@github.com:softmoth/mustache-spec.git ../mustache-spec
@@ -100,8 +100,6 @@ TODO
 ====
 
   * full object support (with method calls; currently the object is just stringified)
-
-  * parsed template caching (currently supported for literal template strings)
 
   * global helpers (context items that float at the top of the stack)
 

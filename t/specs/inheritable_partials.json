@@ -78,7 +78,6 @@
     },
     {
       "name": "The content of the last inheritable sections in partials is rendered in the inherited section",
-      "todo": "Double-embedded inheritence NYI",
       "data": { },
       "template": "{{<partial1}}{{$inheritable}}1{{/inheritable}}{{>partial2}}{{$inheritable}}4{{/inheritable}}{{/partial1}}",
       "partials": {
@@ -88,7 +87,6 @@
     },
     {
       "name": "The content of the last inheritable sections in partials is rendered in the inherited section",
-      "todo": "Double-embedded inheritence NYI",
       "data": { },
       "template": "{{<partial1}}{{$inheritable}}1{{/inheritable}}{{>partial2}}{{/partial1}}",
       "partials": {
@@ -107,7 +105,6 @@
     },
     {
       "name": "Partials in inherited partials can override inheritable sections",
-      "todo": "Double-embedded inheritence NYI",
       "data": { },
       "template": "{{<partial2}}{{>partial1}}{{/partial2}}",
       "partials": {
@@ -160,7 +157,6 @@
     },
     {
       "name": "Templates sections can not override inheritable sections in inherited partial",
-      "todo": "Non-override sections not allowed in inheritence templates",
       "data": { "section": true },
       "template": "{{<partial}}{{#section}}inherited{{/section}}{{/partial}}",
       "partials": { "partial": "{{$section}}success{{/section}}" },
@@ -192,7 +188,6 @@
     },
     {
       "name": "Two levels of inheritance: inherited partial with overriding content containing a partial",
-      "todo": "Double-embedded inheritence NYI",
       "data": { },
       "template": "{{<partial}}{{>partial2}}{{/partial}}",
       "partials": {
@@ -202,7 +197,6 @@
     },
     {
       "name": "Two levels of inheritance: inherited partial with overriding content containing another inherited partial",
-      "todo": "Double-embedded inheritence NYI",
       "data": { },
       "template": "{{<partial}}{{<partial2}}{{/partial2}}{{/partial}}",
       "partials": {
@@ -212,7 +206,6 @@
     },
     {
       "name": "Two levels of inheritance: inherited partial with overriding content containing another inherited partial with overriding content containing an inheritable section",
-      "todo": "Double-embedded inheritence NYI",
       "data": { },
       "template": "{{<partial}}{{<partial2}}{{$inheritable}}inherited{{/inheritable}}{{/partial2}}{{/partial}}",
       "partials": {

@@ -53,11 +53,9 @@ Template::Mustache.render(q:to/EOF/,
 
 =head2 Template inheritence
 
-Partial support for C<hogan.js>-style
+Support for C<hogan.js>-style
 L<template inheritence|https://github.com/groue/GRMustache/blob/master/Guides/template_inheritance.md>
-is available. See the C<"todo"> tests in
-L<t/specs/inheritable_partials.json>
-to know what is not yet implemented.
+is available.
 
 =head1 More Examples and Tests
 
@@ -82,8 +80,8 @@ The perl6 branch just updates the .json files to match the .yml sources
 (needed until someone writes a compliant YAML parser in Raku … hint, hint),
 and adds Raku lambda code strings for that portion of the specs.
 
-A copy of the tests is distributed in C<t/specs>. To check against the specs
-repository, clone it into C<../mustache-spec>:
+An updated copy of the tests is distributed in C<t/specs>. To check against
+the official (outdated) specs repository, clone it into C<../mustache-spec>:
 
 =begin code
 # Ensure you are using the default 'perl6' branch, not 'master'
@@ -108,7 +106,6 @@ note are:
 =head1 TODO
 
 =item full object support (with method calls; currently the object is just stringified)
-=item parsed template caching (currently supported for literal template strings)
 =item global helpers (context items that float at the top of the stack)
 =item database loader
 =item pragmas (FILTERS?)

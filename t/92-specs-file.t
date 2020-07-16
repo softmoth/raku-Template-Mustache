@@ -29,7 +29,7 @@ for load-specs().sort -> $spec {
 
             my $result = try $m.render: 'specs-file-main', :$from, $_<data>;
             if $_<todo> -> $todo { todo $todo }
-            is $result, $_<expected>, join(': ', $_<name desc>.grep(*.defined));
+            is $result // $!, $_<expected>, join(': ', $_<name desc>.grep(*.defined));
 
             LEAVE {
                 if %*ENV<TEST_SPEC_KEEP>.not and $full-path.IO.e {
