@@ -27,7 +27,7 @@ for load-specs() {
 
     my $result = try $m.render: 'specs-file-main', $_<data>;
     if $_<todo> -> $todo { todo $todo }
-    is $result, $_<expected>, join(': ', $_<name desc>.grep(*.defined));
+    is $result // $!, $_<expected>, join(': ', $_<name desc>.grep(*.defined));
 }
 
 # vim:set ft=perl6:
