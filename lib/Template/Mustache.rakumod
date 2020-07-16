@@ -369,6 +369,60 @@ class Template::Mustache:ver<1.1.4>:auth<github:softmoth> {
                 return $section ?? ($result, $lambda) !! $result;
             }
 
+            sub extract-overrides(@contents) {
+                for @contents {
+                    when Associative {
+                        when *.<override> {
+                            %*overrides{.<val>} = .<contents>;
+                        }
+
+                        when { .<type> eq 'comment' } {
+                            # Ignore
+                        }
+
+                        when *.<inherits> {
+                            my @parsed = get-template
+                                            .<val>,
+                                            :delims(.<delims>),
+                                            :indent(.<indent>),
+                                            :!literal,
+                                            ;
+
+                            # Contents override parent
+                            extract-overrides @parsed;
+                            extract-overrides .<contents>;
+                        }
+
+                        when { .<type> eq 'partial' } {
+                            my @parsed = get-template
+                                            .<val>,
+                                            :delims(.<delims>),
+                                            :indent(.<indent>),
+                                            :!literal,
+                                            ;
+
+                            extract-overrides @parsed;
+                        }
+
+                        default {
+                            # Ignore
+                            #warn X::Template::Mustache::InheritenceLost
+                            #    .new: :str((.<val>).fmt('< # %s'));
+                        }
+                    }
+                    when Str {
+                        # Ignore
+                        #warn X::Template::Mustache::InheritenceLost
+                        #    .new: :str(($_).fmt('< $ %s'));
+                    }
+                    default {
+                        # Ignore
+                        #warn X::Template::Mustache::InheritenceLost
+                        #    .new: :str((.gist).fmt('< ? %s'));
+                    }
+                }
+            }
+
             #note "** \{ %val<type>: %val<val>";
             given %val<type> {
                 when 'comment' { '' }
@@ -386,29 +440,16 @@ class Template::Mustache:ver<1.1.4>:auth<github:softmoth> {
                     }
 
                     if %val<inherits> {
-                        my @parsed = get-template(%val<val>, :delims(%val<delims>), :indent(%val<indent>), :!literal);
-
                         temp %*overrides;
-                        for %val<contents><> {
-                            when Associative {
-                                .<override>
-                                    or die X::Template::Mustache::InheritenceLost
-                                        .new: :str((%val<val> => .<val>)
-                                                        .fmt('< %s: # %s'));
-                                %*overrides{.<val>} = .<contents>;
-                            }
-                            when Str {
-                                /\S/
-                                    and die X::Template::Mustache::InheritenceLost
-                                        .new: :str((%val<val> => .raku)
-                                                        .fmt('< %s: %s'));
-                            }
-                            default {
-                                die X::Template::Mustache::InheritenceLost
-                                    .new: :str((%val<val> => .gist)
-                                                    .fmt('< %s: ? %s'));
-                            }
-                        }
+
+                        my @parsed = get-template
+                                        %val<val>,
+                                        :delims(%val<delims>),
+                                        :indent(%val<indent>),
+                                        :!literal,
+                                        ;
+
+                        extract-overrides %val<contents>;
 
                         format(@parsed, @context);
                     }
@@ -442,7 +483,12 @@ class Template::Mustache:ver<1.1.4>:auth<github:softmoth> {
                 }
                 when 'partial' {
                     #note "- Looking up partial for {%val<val>}";
-                    my @parsed = get-template(%val<val>, :delims(%val<delims>), :indent(%val<indent>), :!literal);
+                    my @parsed = get-template
+                                    %val<val>,
+                                    :delims(%val<delims>),
+                                    :indent(%val<indent>),
+                                    :!literal,
+                                    ;
                     #note "PARTIAL FORMAT DATA ", @context.raku;
                     format(@parsed, @context);
                 }
