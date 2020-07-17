@@ -9,11 +9,12 @@
   "description" : "A logic-free, cross-language templating format",
   "license" : "Artistic-2.0",
   "name" : "Template::Mustache",
-  "perl" : "6",
+  "perl" : "6.d",
   "production" : 1,
   "provides" : {
     "Template::Mustache" : "lib/Template/Mustache.rakumod"
   },
+  "raku" : "6.d",
   "resources" : [ ],
   "source-url" : "https://github.com/softmoth/raku-Template-Mustache.git",
   "support" : {

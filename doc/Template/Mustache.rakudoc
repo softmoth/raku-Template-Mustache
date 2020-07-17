@@ -4,7 +4,7 @@ Raku implementation of Mustache templates, L<http://mustache.github.io/>.
 
 =head1 Synopsis
 
-=begin code :allow< L B I >
+=begin code :lang<raku> :allow< L B I >
 use Template::Mustache;
 
 # Call .render as a class method
@@ -49,13 +49,91 @@ Template::Mustache.render(q:to/EOF/,
 
 =end code
 
-=head1 Extensions
+
+=head1 Description
+
+=head2 Logging
+
+=head3 Log levels
+
+Messages are logged with varying severity levels (from most to least severe):
+C<Fatal>,
+C<Error>,
+C<Warn>,
+C<Info>,
+C<Verbose>,
+C<Audit>,
+C<Debug>,
+C<Trace>,
+C<Trace2>
+
+By default, only messages of C<Error> or worse are logged. That default can
+be changed with the C<TEMPLATE_MUSTACHE_LOGLEVEL> environment variable.
+
+=for code
+TEMPLATE_MUSTACHE_LOGLEVEL=Debug
+
+The default is overridden with the C<:log-level> option to
+C<Template::Mustache.new>, or a C<Template::Mustache::Logger>
+object can be passed via the C<:logger> option.
+
+=begin code :lang<raku>
+my $stache = Template::Mustache.new: :log-level<Trace>;
+
+my $logger = Template::Mustache::Logger.new: :level<Debug>;
+my $stache = Template::Mustache.new: :$logger;
+=end code
+
+Either method can be used with the C<.render> method, as well.
+
+=begin code :lang<raku>
+my %data = hello => 'world';
+
+Template::Mustache.render: 'Hello, {{hello}}!', %data, :log-level<Trace>;
+
+my $logger = Template::Mustache::Logger.new: :level<Debug>;
+Template::Mustache.render: 'Hello, {{hello}}!', %data, :$logger;
+=end code
+
+=head3 Log routine
+
+By default, any messages at level C<Warn> or worse are logged with the
+C<warn> routine. A C<CONTROL> block can handle such warnings if needed; see
+L<Language/phasers|https://docs.raku.org/language/phasers#CONTROL>
+for details.
+Less severe messages (C<Info> and up) are logged with the C<note> routine.
+
+The routine can be set per log level, in the
+C<Template::Mustache::Logger.routines>
+hash.
+
+=begin code :lang<raku> :allow< L B I >
+# Use I<say> instead of I<note> for I<Info> and up; the more severe
+# levels (C<Warn> down to C<Fatal>) still use the I<warn> routine
+my $stache = Template::Mustache.new: :log-routine(&say);
+
+# But even those can be set explicitly
+$stache.logger.routines{$_} = &die for <Warn Error Fatal>;
+
+$stache.render: '{{missing}}', {};  # dies
+=end code
+
+=head3 method log
+
+=item C<multi method log(Exception $exception, LogLevel :$level)>
+=item C<multi method log(LogLevel :$level, *@msgs)>
+
+Emit a message at C<$level> (C<Info> by default).
+
+
+=head1 Extra features
 
 =head2 Template inheritence
 
 Support for C<hogan.js>-style
 L<template inheritence|https://github.com/groue/GRMustache/blob/master/Guides/template_inheritance.md>
 is available.
+
 
 =head1 More Examples and Tests
 
@@ -83,6 +161,7 @@ git branch -v
 The test file C<t/specs/inheritable_partials.json> is taken from
 L<groue/GRMustache|https:/github.com/groue/GRMustache>.
 
+
 =head1 Other Mustache Implementations
 
 There are many, many Mustache implementations in various languages. Some of
@@ -94,12 +173,14 @@ note are:
 =item GRMustache (Objective C) L<https://github.com/groue/GRMustache>
 =item mustache.php L<https://github.com/bobthecow/mustache.php>
 
+
 =head1 TODO
 
 =item full object support (with method calls; currently the object is just stringified)
 =item global helpers (context items that float at the top of the stack)
 =item database loader
 =item pragmas (FILTERS?)
+
 
 =head1 License
 
