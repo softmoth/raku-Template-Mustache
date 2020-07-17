@@ -2,6 +2,11 @@ Revision history for Template-Mustache
 
 {{$NEXT}}
 
+1.2.1  2020-07-17T01:40:07-04:00
+    - Add Template::Mustache::Logger class to control logging detail
+    - Prefer `:log-level<Warn>` instead of `:warn` option for `.render`
+    - The source repository is now called raku-Template-Mustache
+
 1.2.0  2020-07-15T23:33:07-04:00
     - Cache everything, including files, partials and lambdas
     - Template inheritance: Partials that can override values from parent
