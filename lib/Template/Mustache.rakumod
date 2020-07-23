@@ -78,6 +78,7 @@ class Template::Mustache:ver<1.2.1>:auth<github:softmoth> {
 
     has $.extension = 'mustache';
     has $.from;
+    has $.pragma;
     has %!cache;
     has $.logger handles <log>;
 
@@ -203,13 +204,25 @@ class Template::Mustache:ver<1.2.1>:auth<github:softmoth> {
             make { :type<comment>, :val(~$0) }
         }
         method tag:sym<var>($/) {
-            make { :type<var>, :val(~$<name>) }
+            make {
+                :type<var>,
+                :val(~$<name>),
+                :orig(~$/),
+            }
         }
         method tag:sym<qvar>($/) {
-            make { :type<qvar>, :val(~$<name>) }
+            make {
+                :type<qvar>,
+                :val(~$<name>),
+                :orig(~$/),
+            }
         }
         method tag:sym<mmmvar>($/) {
-            make { :type<mmmvar>, :val(~$<name>) }
+            make {
+                :type<mmmvar>,
+                :val(~$<name>),
+                :orig(~$/),
+            }
         }
         method tag:sym<section>($/) {
             make {
@@ -232,6 +245,7 @@ class Template::Mustache:ver<1.2.1>:auth<github:softmoth> {
         $template,
         %context,
         :$from,
+        :$pragma,
         :$extension is copy,
         Bool :$literal,
         :$log-level,
@@ -249,6 +263,7 @@ class Template::Mustache:ver<1.2.1>:auth<github:softmoth> {
         temp $!logger.level = $_ with $log-level // ('Warn' if $warn);
 
         my $froms = [];
+        my $*pragmas = [];
         my %*overrides;
 
         if not $extension.defined {
@@ -258,17 +273,20 @@ class Template::Mustache:ver<1.2.1>:auth<github:softmoth> {
         $extension = map { .starts-with('.') ?? .substr(1) !! $_ }, @$extension;
         $extension = [ $extension<> ] unless $extension ~~ Positional;
 
-        sub push-to-froms ($_) {
-            when Positional { push $froms, |$_ }
-            when .defined { push $froms, $_ }
+        sub push-to ($target, $_) {
+            when Positional { $target.push: |$_ }
+            when .defined   { $target.push:  $_ }
         }
-        push-to-froms $from;
-        push-to-froms $!from if self;
+        push-to $froms, $from;
+        push-to $froms, $!from if self;
+        push-to $*pragmas, $pragma;
+        push-to $*pragmas, $!pragma if self;
 
         my $actions = Actions.new: :$!logger;
 
         self.log: :level<Debug>, "TEMPLATE: $template.raku()";
         self.log: :level<Debug>, "FROM: $froms.raku()";
+        self.log: :level<Debug>, "PRAGMA: $*pragmas.raku()";
         self.log: :level<Debug>, "EXTENSION: $extension.raku()";
         my @parsed = get-template($template, :$literal);
 
@@ -382,7 +400,8 @@ class Template::Mustache:ver<1.2.1>:auth<github:softmoth> {
         }
         multi sub format($val, @context) { $val }
         multi sub format(%val, @context) {
-            sub get(@context, $field, :$section) {
+            sub get(@context, %val, Bool :$section, Callable :$encode is copy) {
+                my $field = %val<val>;
                 sub resolve($obj) {
                     if $obj ~~ Callable {
                         my $str;
@@ -410,7 +429,7 @@ class Template::Mustache:ver<1.2.1>:auth<github:softmoth> {
                 }
 
                 self.log: :level<Trace>, "GET '$field' from: ", @context.raku;
-                my $result = '';
+                my $result;
                 my $lambda = False;
                 if $field eq '.' {
                     # Implicit iterator {{.}}
@@ -437,11 +456,27 @@ class Template::Mustache:ver<1.2.1>:auth<github:softmoth> {
                         self.log: :level<Trace>, "#** dot field lookup for @field[0]";
                         ($result, $lambda) = resolve($result{@field[0]}) // '';
                     }
+                    without $result {
+                        if ! $section and %val<orig>
+                            and pragma('KEEP-UNUSED-VARIABLES')
+                        {
+                            $encode = Nil;
+                            $result = %val<orig>;
+                        }
+                        else {
+                            $result = '';
+                        }
+                    }
                 }
                 self.log: :level<Trace>, "get($field) is '$result.raku()'";
                 self.log: :level<Warn>, X::Template::Mustache::FieldNotFound.new(:str($field))
                     unless $result;
+                $result = $encode(~$result) if $encode;
                 return $section ?? ($result, $lambda) !! $result;
+            }
+
+            sub pragma($pragma) {
+                $*pragmas.grep({ .fc eq $pragma.fc });
             }
 
             sub extract-overrides(@contents) {
@@ -501,12 +536,11 @@ class Template::Mustache:ver<1.2.1>:auth<github:softmoth> {
             self.log: :level<Trace>, "** \{ %val<type>: %val<val>";
             given %val<type> {
                 when 'comment' { '' }
-                when 'var' { encode-entities(~get(@context, %val<val>)) }
-                when 'qvar' { get(@context, %val<val>) }
-                when 'mmmvar' { get(@context, %val<val>) }
+                when 'var' { get(@context, %val, :encode(&encode-entities)) }
+                when 'mmmvar' | 'qvar' { get(@context, %val) }
                 when 'delim' { '' }
                 when 'section' {
-                    my ($datum, $lambda) = get(@context, %val<val>, :section);
+                    my ($datum, $lambda) = get(@context, %val, :section);
                     if $lambda {
                         # The section was resolved by calling a lambda, which
                         # is always considered truthy, regardless of the
