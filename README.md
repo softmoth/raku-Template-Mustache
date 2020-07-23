@@ -116,6 +116,11 @@ Template inheritence
 
 Support for `hogan.js`-style [template inheritence](https://github.com/groue/GRMustache/blob/master/Guides/template_inheritance.md) is available.
 
+Pragma: KEEP-UNUSED-VARIABLES
+-----------------------------
+
+Specify `:pragma<KEEP-UNUSED-VARIABLES>` to either `Template::Mustache.new` or `.render`, and any variables which are not defined in the data context will be kept in the rendered text. See `t/13-pragmas.t` for examples.
+
 More Examples and Tests
 =======================
 
