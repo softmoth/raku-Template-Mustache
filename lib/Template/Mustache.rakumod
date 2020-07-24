@@ -147,9 +147,9 @@ class Template::Mustache:ver<1.2.1>:auth<github:softmoth> {
                         my $f;
                         while @frames > 1 {
                             $f = @frames.shift;
-                            &.log: :level<Trace>, "*****", $f.raku;
+                            self.log: :level<Trace>, "*****", $f.raku;
                             last if $f<val> eq $hunk<val>;
-                            &.log: :level<Warn>, "Closing '$f<val>' section while looking for $hunk<val> section";
+                            self.log: :level<Warn>, "Closing '$f<val>' section while looking for $hunk<val> section";
                             $f = Nil;
                         }
                         if $f {
@@ -158,7 +158,7 @@ class Template::Mustache:ver<1.2.1>:auth<github:softmoth> {
                             $f<pos> :delete;  # Not useful outside of this parse
                         }
                         else {
-                            &.log: :level<Warn>, "No start of section found for /$hunk<val>!";
+                            self.log: :level<Warn>, "No start of section found for /$hunk<val>!";
                         }
                     }
                 }
@@ -194,7 +194,7 @@ class Template::Mustache:ver<1.2.1>:auth<github:softmoth> {
                 :type<delim>,
                 :val(~$0),
                 :finalizer({
-                    &.log: :level<Trace>, "Setting DELIMS ", @delim.raku;
+                    self.log: :level<Trace>, "Setting DELIMS ", @delim.raku;
                     ($*LEFT, $*RIGHT) = @delim;
                 }),
             }
@@ -319,7 +319,7 @@ class Template::Mustache:ver<1.2.1>:auth<github:softmoth> {
                 %!cache{ $key } = @parsed;
             }
 
-            &.log: :level<Trace>, "Template for '$key': ", @parsed.raku;
+            self.log: :level<Trace>, "Template for '$key': ", @parsed.raku;
             return @parsed;
 
             sub specify-template {
@@ -339,7 +339,7 @@ class Template::Mustache:ver<1.2.1>:auth<github:softmoth> {
                     }
 
                     default {
-                        &.log: :level<Warn>, "Ignoring unrecognized :from() entry $_.raku()";
+                        self.log: :level<Warn>, "Ignoring unrecognized :from() entry $_.raku()";
                     }
                 }
 
@@ -347,7 +347,7 @@ class Template::Mustache:ver<1.2.1>:auth<github:softmoth> {
                 # explicitly prohibited
                 return $template unless $literal.defined;
 
-                &.log: :level<Debug>, "Template '$template' undefined";
+                self.log: :level<Debug>, "Template '$template' undefined";
                 return '';
             }
         }
@@ -356,7 +356,7 @@ class Template::Mustache:ver<1.2.1>:auth<github:softmoth> {
             my ($*LEFT, $*RIGHT) = $delims ?? @$delims !! ( '{{', '}}' );
             Grammar.parse($str, :$actions)
                 or X::Template::Mustache::CannotParse.new(:$str).throw;
-            &.log: :level<Trace>, $/.made.raku;
+            self.log: :level<Trace>, $/.made.raku;
             return @($/.made // ());
         }
 
@@ -375,9 +375,9 @@ class Template::Mustache:ver<1.2.1>:auth<github:softmoth> {
         # TODO Track recursion depth and throw if > 100?
         proto sub format(|) {*}
         multi sub format(@val, @context) {
-            &.log: :level<Trace>, "** \@ ...";
+            self.log: :level<Trace>, "** \@ ...";
             my $j = join '', @val.map: { format($_, @context) };
-            &.log: :level<Trace>, "** ... \@ $j";
+            self.log: :level<Trace>, "** ... \@ $j";
             $j;
         }
         multi sub format($val, @context) { $val }
@@ -387,7 +387,7 @@ class Template::Mustache:ver<1.2.1>:auth<github:softmoth> {
                     if $obj ~~ Callable {
                         my $str;
                         if $obj.arity > 1 {
-                            &.log: :level<Warn>, "Ignoring '$field' lambda that takes $_ args";
+                            self.log: :level<Warn>, "Ignoring '$field' lambda that takes $_ args";
                             $str = '';
                         }
                         elsif $obj.arity == 1 {
@@ -396,20 +396,20 @@ class Template::Mustache:ver<1.2.1>:auth<github:softmoth> {
                         else {
                             $str = $obj();
                         }
-                        &.log: :level<Trace>, "#** Parsing '$str'";
-                        &.log: :level<Trace>, "#** ^ with delims %val<delims>.raku()" if %val<delims>;
+                        self.log: :level<Trace>, "#** Parsing '$str'";
+                        self.log: :level<Trace>, "#** ^ with delims %val<delims>.raku()" if %val<delims>;
                         # literal: don't allow lambda return a template name
                         my @parsed = get-template($str, :delims(%val<delims>), :indent(%val<indent>), :literal);
                         my $result = format(@parsed, @context);
                         return $result, True;
                     }
                     else {
-                        &.log: :level<Trace>, "#** Resolve of $obj.WHAT.raku() as '$obj'";
+                        self.log: :level<Trace>, "#** Resolve of $obj.WHAT.raku() as '$obj'";
                         return $obj, False;
                     }
                 }
 
-                &.log: :level<Trace>, "GET '$field' from: ", @context.raku;
+                self.log: :level<Trace>, "GET '$field' from: ", @context.raku;
                 my $result = '';
                 my $lambda = False;
                 if $field eq '.' {
@@ -421,25 +421,25 @@ class Template::Mustache:ver<1.2.1>:auth<github:softmoth> {
                     for @context.map({$^ctx{@field[0]}}) -> $ctx {
                         # In Raku, {} and [] are falsy, but Mustache
                         # treats them as truthy
-                        &.log: :level<Trace>, "#** field lookup for @field[0]: '$ctx.raku()'";
+                        self.log: :level<Trace>, "#** field lookup for @field[0]: '$ctx.raku()'";
                         if $ctx ~~ Promise {
                             $result = await $ctx;
                             last;
                         }
                         elsif $ctx.defined {
                             ($result, $lambda) = resolve($ctx);
-                            &.log: :level<Trace>, "#** ^ result is $result.raku(), lambda $lambda.raku()";
+                            self.log: :level<Trace>, "#** ^ result is $result.raku(), lambda $lambda.raku()";
                             last;
                         }
                     }
                     while $result and !$lambda and @field > 1 {
                         @field.shift;
-                        &.log: :level<Trace>, "#** dot field lookup for @field[0]";
+                        self.log: :level<Trace>, "#** dot field lookup for @field[0]";
                         ($result, $lambda) = resolve($result{@field[0]}) // '';
                     }
                 }
-                &.log: :level<Trace>, "get($field) is '$result.raku()'";
-                &.log: :level<Warn>, X::Template::Mustache::FieldNotFound.new(:str($field))
+                self.log: :level<Trace>, "get($field) is '$result.raku()'";
+                self.log: :level<Warn>, X::Template::Mustache::FieldNotFound.new(:str($field))
                     unless $result;
                 return $section ?? ($result, $lambda) !! $result;
             }
@@ -481,24 +481,24 @@ class Template::Mustache:ver<1.2.1>:auth<github:softmoth> {
 
                         default {
                             # Ignore
-                            #&.log: :level<Warn>, X::Template::Mustache::InheritenceLost
+                            #self.log: :level<Warn>, X::Template::Mustache::InheritenceLost
                             #    .new: :str((.<val>).fmt('< # %s'));
                         }
                     }
                     when Str {
                         # Ignore
-                        #&.log: :level<Warn>, X::Template::Mustache::InheritenceLost
+                        #self.log: :level<Warn>, X::Template::Mustache::InheritenceLost
                         #    .new: :str(($_).fmt('< $ %s'));
                     }
                     default {
                         # Ignore
-                        #&.log: :level<Warn>, X::Template::Mustache::InheritenceLost
+                        #self.log: :level<Warn>, X::Template::Mustache::InheritenceLost
                         #    .new: :str((.gist).fmt('< ? %s'));
                     }
                 }
             }
 
-            &.log: :level<Trace>, "** \{ %val<type>: %val<val>";
+            self.log: :level<Trace>, "** \{ %val<type>: %val<val>";
             given %val<type> {
                 when 'comment' { '' }
                 when 'var' { encode-entities(~get(@context, %val<val>)) }
@@ -552,19 +552,19 @@ class Template::Mustache:ver<1.2.1>:auth<github:softmoth> {
                         format(%val<contents>, @context);
                     }
                     else {
-                        &.log: :level<Trace>, "!!! EMPTY SECTION '%val<val>'";
+                        self.log: :level<Trace>, "!!! EMPTY SECTION '%val<val>'";
                         ''
                     }
                 }
                 when 'partial' {
-                    &.log: :level<Trace>, "- Looking up partial for {%val<val>}";
+                    self.log: :level<Trace>, "- Looking up partial for {%val<val>}";
                     my @parsed = get-template
                                     %val<val>,
                                     :delims(%val<delims>),
                                     :indent(%val<indent>),
                                     :!literal,
                                     ;
-                    &.log: :level<Trace>, "PARTIAL FORMAT DATA ", @context.raku;
+                    self.log: :level<Trace>, "PARTIAL FORMAT DATA ", @context.raku;
                     format(@parsed, @context);
                 }
                 default { die "Impossible format type: ", %val.raku }
