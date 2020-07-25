@@ -2,6 +2,10 @@ Revision history for Template-Mustache
 
 {{$NEXT}}
 
+1.2.2  2020-07-24T23:53:15-04:00
+    - Add :pragma<KEEP-UNUSED-VARIABLES> feature
+    - Fix logging feature compatibility with rakudo-2019.11.01
+
 1.2.1  2020-07-17T01:40:07-04:00
     - Add Template::Mustache::Logger class to control logging detail
     - Prefer `:log-level<Warn>` instead of `:warn` option for `.render`

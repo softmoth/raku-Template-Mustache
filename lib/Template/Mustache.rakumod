@@ -16,7 +16,7 @@ my class X::Template::Mustache::InheritenceLost is Exception {
     method message() { "$!err ❮{$!str}❯" }
 }
 
-class Template::Mustache:ver<1.2.1>:auth<github:softmoth> {
+class Template::Mustache:ver<1.2.2>:auth<github:softmoth> {
     class Logger {
         # Not using an enum, because when exported it pollutes the namespace
         our constant LogLevels =
