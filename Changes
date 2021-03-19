@@ -1,6 +1,8 @@
 Revision history for Template-Mustache
 
 {{$NEXT}}
+
+1.2.3  2021-03-19T02:00:29-04:00
     - Fix {{.}} lookup in scalar sections
     - Update spec tests with upstream changes
 

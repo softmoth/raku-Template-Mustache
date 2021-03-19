@@ -1,36 +1,39 @@
 {
-  "auth" : "github:softmoth",
-  "authors" : [
+  "auth": "github:softmoth",
+  "authors": [
     "Tim Smith",
     "Richard Hainsworth"
   ],
-  "build-depends" : [ ],
-  "depends" : [ ],
-  "description" : "A logic-free, cross-language templating format",
-  "license" : "Artistic-2.0",
-  "name" : "Template::Mustache",
-  "perl" : "6.d",
-  "production" : 1,
-  "provides" : {
-    "Template::Mustache" : "lib/Template/Mustache.rakumod"
+  "build-depends": [
+  ],
+  "depends": [
+  ],
+  "description": "A logic-free, cross-language templating format",
+  "license": "Artistic-2.0",
+  "name": "Template::Mustache",
+  "perl": "6.d",
+  "production": 1,
+  "provides": {
+    "Template::Mustache": "lib/Template/Mustache.rakumod"
   },
-  "raku" : "6.d",
-  "resources" : [ ],
-  "source-url" : "https://github.com/softmoth/raku-Template-Mustache.git",
-  "support" : {
-    "bugtracker" : "https://github.com/softmoth/raku-Template-Mustache/issues",
-    "source" : "https://github.com/softmoth/raku-Template-Mustache.git"
+  "raku": "6.d",
+  "resources": [
+  ],
+  "source-url": "https://github.com/softmoth/raku-Template-Mustache.git",
+  "support": {
+    "bugtracker": "https://github.com/softmoth/raku-Template-Mustache/issues",
+    "source": "https://github.com/softmoth/raku-Template-Mustache.git"
   },
-  "tags" : [
+  "tags": [
     "mustache",
     "template",
     "web",
     "text"
   ],
-  "test-depends" : [
+  "test-depends": [
     "JSON::Fast",
     "Test",
     "Test::META"
   ],
-  "version" : "1.2.2"
+  "version": "1.2.3"
 }
