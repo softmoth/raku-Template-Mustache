@@ -130,11 +130,13 @@ The Mustache spec provides a wealth of examples to demonstrate exactly how the f
 
 All of the official Mustache spec tests pass. An updated copy of the tests is distributed in `t/specs`.
 
-To check against the official (outdated) specs repository, clone it into `../mustache-spec`: [https://travis-ci.org/softmoth/raku-Template-Mustache](https://travis-ci.org/softmoth/raku-Template-Mustache). The `perl6` branch just updates the .json files to match the .yml sources (needed until someone writes a compliant YAML parser in Raku … hint, hint), and adds Raku lambda code strings for that portion of the specs.
+To check against the official specs repository, clone it into `../mustache-spec`:
 
-    # Ensure you are using the default 'perl6' branch, not 'master'
-    git clone git@github.com:softmoth/mustache-spec.git ../mustache-spec
-    git branch -v
+    git clone https://github.com/mustache/spec.git ../mustache-spec
+    prove -v -e 'raku -Ilib' t/
+
+Extra Specifications
+--------------------
 
 The test file `t/specs/inheritable_partials.json` is taken from [groue/GRMustache](https:/github.com/groue/GRMustache).
 

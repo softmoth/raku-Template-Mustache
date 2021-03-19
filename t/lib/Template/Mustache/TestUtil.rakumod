@@ -2,11 +2,12 @@ use Test;
 
 sub load-specs (*@specs-dirs) is export {
     use JSON::Fast;
-    # Set to run a specific test (e.g. '~lambda:5')
+    # Set to run a specific test (e.g. '~lambdas:5')
     my ($file, $start, $count) = split ':', %*ENV<TEST_SPEC_START> // '';
     $file ||= '';
-    $start ||= 0;
-    $count ||= Inf;
+    # Ensure these are numeric, for min() or other comparisons
+    $start = +($start || 0);
+    $count = +($count || Inf);
 
     my @files;
     @specs-dirs ||= < ../mustache-spec/specs t/specs >;
@@ -24,8 +25,8 @@ sub load-specs (*@specs-dirs) is export {
         #diag "- $_: {+%data<tests>}";
         for %data<tests>.list -> $t {
             if $t<data><lambda> -> $l {
-                if $l<perl6> {
-                    $t<data><lambda> = $l<perl6>.EVAL;
+                if $l<raku> -> $l {
+                    $t<data><lambda> = $l.EVAL;
                 }
                 else {
                     $t<data><lambda> :delete;
