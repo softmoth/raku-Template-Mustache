@@ -1,6 +1,7 @@
 Revision history for Template-Mustache
 
 {{$NEXT}}
+    - Fix {{.}} lookup in scalar sections
 
 1.2.2  2020-07-24T23:53:15-04:00
     - Add :pragma<KEEP-UNUSED-VARIABLES> feature

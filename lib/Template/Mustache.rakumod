@@ -567,6 +567,8 @@ class Template::Mustache:ver<1.2.2>:auth<github:softmoth> {
                     }
                     elsif !%val<inverted> and $datum -> $_ {
                         when Associative {
+                            # Same behavior as default (below), but must not
+                            # be handled as Iterable
                             temp @context;
                             @context.unshift: $_;
                             format(%val<contents>, @context);
@@ -579,6 +581,8 @@ class Template::Mustache:ver<1.2.2>:auth<github:softmoth> {
                             }).join('');
                         }
                         default {
+                            temp @context;
+                            @context.unshift: $_;
                             format(%val<contents>, @context);
                         }
                     }
