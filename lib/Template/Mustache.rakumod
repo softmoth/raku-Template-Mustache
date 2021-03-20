@@ -566,24 +566,20 @@ class Template::Mustache:ver<1.2.3>:auth<github:softmoth> {
                         format(%*overrides{%val<val>} // %val<contents>, @context);
                     }
                     elsif !%val<inverted> and $datum -> $_ {
+                        sub section_format($datum) {
+                            format(%val<contents>, ($datum, |@context));
+                        }
+
                         when Associative {
                             # Same behavior as default (below), but must not
                             # be handled as Iterable
-                            temp @context;
-                            @context.unshift: $_;
-                            format(%val<contents>, @context);
+                            section_format $_
                         }
                         when Iterable | Positional {
-                            $_.map( -> $datum {
-                                my @ctx = @context;
-                                @ctx.unshift: $datum;
-                                format(%val<contents>, @ctx);
-                            }).join('');
+                            .map(&section_format).join
                         }
                         default {
-                            temp @context;
-                            @context.unshift: $_;
-                            format(%val<contents>, @context);
+                            section_format $_
                         }
                     }
                     elsif %val<inverted> and !$datum {
