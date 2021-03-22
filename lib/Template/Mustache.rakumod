@@ -423,7 +423,7 @@ class Template::Mustache:ver<1.2.3>:auth<github:softmoth> {
                         return $result, True;
                     }
                     else {
-                        self.log: :level<Trace>, "#** Resolve of $obj.WHAT.raku() as '$obj'";
+                        #self.log: :level<Trace>, "#** Resolve of $obj.WHAT.raku() as '$obj'";
                         return $obj, False;
                     }
                 }
