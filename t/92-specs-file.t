@@ -45,4 +45,4 @@ for load-specs().sort -> $spec {
 
 diag "Templates from spec test left in {views}" if %*ENV<TEST_SPEC_KEEP>;
 
-# vim:set ft=perl6:
+# vim:set ft=raku:

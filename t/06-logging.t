@@ -27,4 +27,4 @@ $m.logger.routines<Warn> = &die;
 dies-ok { $m.render: '{{missing}}', {} },
     "Set log routine for Warn level to \&die";
 
-# vim:set ft=perl6:
+# vim:set ft=raku:

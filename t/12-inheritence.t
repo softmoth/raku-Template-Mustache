@@ -31,3 +31,5 @@ is $stache.render('article', {
         EOF
     "'article' inherits 'layout' with overrides"
     ;
+
+# vim:set ft=raku:

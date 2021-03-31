@@ -64,4 +64,4 @@ is $m.render(
     EOF
     'Inline partial can get filesystem partial';
 
-# vim:set ft=perl6:
+# vim:set ft=raku:

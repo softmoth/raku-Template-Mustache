@@ -35,4 +35,4 @@ is Template::Mustache.render('hello', { :name<Jimmy> },
     "Hello, Jimmy.\n",
     'Absolute path to templates';
 
-# vim:set ft=perl6:
+# vim:set ft=raku:

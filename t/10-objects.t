@@ -12,4 +12,4 @@ is $tm.render('{{object}}', { object => TestObj.new }),
     "I am your father!",
     'Object stringifies';
 
-# vim:set ft=perl6:
+# vim:set ft=raku:

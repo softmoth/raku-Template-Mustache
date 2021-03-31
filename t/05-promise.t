@@ -9,4 +9,4 @@ is $m.render('Hello, {{promise}}!', { promise => start {sleep 1; "world"} }),
     "Hello, world!",
     'Interpolate promise object';
 
-# vim:set ft=perl6:
+# vim:set ft=raku:

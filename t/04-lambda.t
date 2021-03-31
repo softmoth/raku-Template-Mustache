@@ -10,4 +10,4 @@ is $m.render('Hello, {{lambda}}!', { lambda => $l.EVAL }),
     "Hello, world!",
     'Interpolate lambda value';
 
-# vim:set ft=perl6:
+# vim:set ft=raku:

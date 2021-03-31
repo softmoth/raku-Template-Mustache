@@ -69,4 +69,4 @@ is
         EOF
     'Event';
 
-# vim:set ft=perl6:
+# vim:set ft=raku:

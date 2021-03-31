@@ -16,4 +16,4 @@ for load-specs().sort -> $spec {
     }
 }
 
-# vim:set ft=perl6:
+# vim:set ft=raku:

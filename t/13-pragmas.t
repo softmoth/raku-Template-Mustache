@@ -24,4 +24,4 @@ subtest "KEEP-UNUSED-VARIABLES" => sub {
         'Keeps unused variable (instance pragma)';
 }
 
-# vim:set ft=perl6:
+# vim:set ft=raku:
