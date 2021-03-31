@@ -128,17 +128,17 @@ The Mustache spec provides a wealth of examples to demonstrate exactly how the f
 
 [https://github.com/mustache/spec/tree/master/specs/](https://github.com/mustache/spec/tree/master/specs/)
 
-All of the official Mustache spec tests pass. An updated copy of the tests is distributed in `t/specs`.
+All of the official Mustache spec tests pass. A copy of the tests is distributed in `t/specs`.
 
 To check against the official specs repository, clone it into `../mustache-spec`:
 
-    git clone https://github.com/mustache/spec.git ../mustache-spec
+    git clone --depth=1 https://github.com/mustache/spec.git ../mustache-spec
     prove -v -e 'raku -Ilib' t/
 
 Extra Specifications
 --------------------
 
-The test file `t/specs/inheritable_partials.json` is taken from [groue/GRMustache](https:/github.com/groue/GRMustache).
+The test file `t/specs/inheritable_partials.json` is taken from [groue/GRMustache](https://github.com/groue/GRMustache).
 
 Other Mustache Implementations
 ==============================

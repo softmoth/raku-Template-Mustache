@@ -147,21 +147,21 @@ format behaves.
 
 L<https://github.com/mustache/spec/tree/master/specs/>
 
-All of the official Mustache spec tests pass. An updated copy of the tests
+All of the official Mustache spec tests pass. A copy of the tests
 is distributed in C<t/specs>.
 
 To check against the official specs repository, clone it into
 C<../mustache-spec>:
 
 =begin code
-git clone https://github.com/mustache/spec.git ../mustache-spec
+git clone --depth=1 https://github.com/mustache/spec.git ../mustache-spec
 prove -v -e 'raku -Ilib' t/
 =end code
 
 =head2 Extra Specifications
 
 The test file C<t/specs/inheritable_partials.json> is taken from
-L<groue/GRMustache|https:/github.com/groue/GRMustache>.
+L<groue/GRMustache|https://github.com/groue/GRMustache>.
 
 
 =head1 Other Mustache Implementations
