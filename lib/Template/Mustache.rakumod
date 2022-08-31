@@ -428,7 +428,16 @@ class Template::Mustache:ver<1.2.3>:auth<github:softmoth> {
                     }
                 }
 
-                self.log: :level<Trace>, "GET '$field' from: ", @context.raku;
+                sub visit($context, Str:D $field) {
+                    if $context{$field}.defined {
+                        $context{$field}
+                    }
+                    elsif $context.^can($field) {
+                        $context."$field"()
+                    }
+                }
+
+                self.log: :level<Trace>, "GET '$field' from: [$(@context.^name)]", @context.raku;
                 my $result;
                 my $lambda = False;
                 if $field eq '.' {
@@ -437,7 +446,7 @@ class Template::Mustache:ver<1.2.3>:auth<github:softmoth> {
                 }
                 else {
                     my @field = $field.split: '.';
-                    for @context.map({$^ctx{@field[0]}}) -> $ctx {
+                    for @context.map({visit($^ctx, @field[0])}) -> $ctx {
                         # In Raku, {} and [] are falsy, but Mustache
                         # treats them as truthy
                         self.log: :level<Trace>, "#** field lookup for @field[0]: '$ctx.raku()'";
@@ -453,8 +462,9 @@ class Template::Mustache:ver<1.2.3>:auth<github:softmoth> {
                     }
                     while $result and !$lambda and @field > 1 {
                         @field.shift;
-                        self.log: :level<Trace>, "#** dot field lookup for @field[0]";
-                        ($result, $lambda) = resolve($result{@field[0]}) // '';
+                        $result = visit($result, @field[0]);
+                        self.log: :level<Trace>, "#** dot field lookup for @field[0] => $result";
+                        ($result, $lambda) = resolve($result)
                     }
                     without $result {
                         if ! $section and %val<orig>
