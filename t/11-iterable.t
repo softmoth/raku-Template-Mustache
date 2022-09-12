@@ -1,9 +1,13 @@
 use Test;
 use Template::Mustache;
 
-plan 4;
+plan 6;
 
 my $stache = Template::Mustache.new;
+
+class Line {
+    has $.line;
+}
 
 sub get-data(Int:D $count = 5) {
     gather {
@@ -26,6 +30,8 @@ my $expect = q:to/EXP/;
 
 is $stache.render($tmpl, { a => get-data(3).list }), $expect, "with Positional";
 is $stache.render($tmpl, { a => get-data(3) }), $expect, "with Iterable";
+is $stache.render($tmpl, { a => get-data(3).map({ Line.new(| $_) }).list }), $expect, "with Positional Object";
+is $stache.render($tmpl, { a => get-data(3).map({ Line.new(| $_) }) }), $expect, "with Iterable Object";
 
 # Benchmark linear and parallel rendering
 
