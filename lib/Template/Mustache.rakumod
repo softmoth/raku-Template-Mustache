@@ -439,6 +439,7 @@ class Template::Mustache:ver<1.2.3>:auth<github:softmoth> {
 
                 self.log: :level<Trace>, "GET '$field' from: [$(@context.^name)]", @context.raku;
                 my $result;
+                my $not-found = False;
                 my $lambda = False;
                 if $field eq '.' {
                     # Implicit iterator {{.}}
@@ -467,6 +468,7 @@ class Template::Mustache:ver<1.2.3>:auth<github:softmoth> {
                         ($result, $lambda) = resolve($result)
                     }
                     without $result {
+                        $not-found = True;
                         if ! $section and %val<orig>
                             and pragma('KEEP-UNUSED-VARIABLES')
                         {
@@ -480,7 +482,7 @@ class Template::Mustache:ver<1.2.3>:auth<github:softmoth> {
                 }
                 self.log: :level<Trace>, "get($field) is '$result.raku()'";
                 self.log: :level<Warn>, X::Template::Mustache::FieldNotFound.new(:str($field))
-                    unless $result;
+                    if $not-found;
                 $result = $encode(~$result) if $encode;
                 return $section ?? ($result, $lambda) !! $result;
             }
