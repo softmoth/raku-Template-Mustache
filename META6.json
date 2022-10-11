@@ -1,4 +1,5 @@
 {
+  "api": "1.2.0",
   "auth": "github:softmoth",
   "authors": [
     "Tim Smith",
