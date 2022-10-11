@@ -1,4 +1,4 @@
-unit class Template::Mustache:ver<1.2.3>:auth<github:softmoth>;
+unit class Template::Mustache:ver($?DISTRIBUTION.meta<ver>):auth($?DISTRIBUTION.meta<auth>):api($?DISTRIBUTION.meta<api>);
 
 role X[Str:D $err] is Exception {
     has $.str;
@@ -611,4 +611,4 @@ method render(|c (
     }
 }
 
-# vim:set ft=perl6:
+# vim:set ft=raku:
