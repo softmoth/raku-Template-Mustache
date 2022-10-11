@@ -434,6 +434,7 @@ method render(|c (
 
             self.log: :level<Trace>, "GET '$field' from: [$(@context.^name)]", @context.raku;
             my $result;
+            my $not-found = False;
             my $lambda = False;
             if $field eq '.' {
                 # Implicit iterator {{.}}
@@ -455,6 +456,7 @@ method render(|c (
                         last;
                     }
                 }
+
                 while $result and !$lambda and @field > 1 {
                     @field.shift;
                     $result = visit($result, @field[0]);
@@ -462,6 +464,7 @@ method render(|c (
                     ($result, $lambda) = resolve($result)
                 }
                 without $result {
+                    $not-found = True;
                     if ! $section and %val<orig>
                         and pragma('KEEP-UNUSED-VARIABLES')
                     {
