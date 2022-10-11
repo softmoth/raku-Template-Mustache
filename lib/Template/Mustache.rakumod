@@ -456,7 +456,6 @@ method render(|c (
                         last;
                     }
                 }
-
                 while $result and !$lambda and @field > 1 {
                     @field.shift;
                     $result = visit($result, @field[0]);
@@ -478,7 +477,7 @@ method render(|c (
             }
             self.log: :level<Trace>, "get($field) is '$result.raku()'";
             self.log: :level<Warn>, X::FieldNotFound.new(:str($field))
-                unless $result;
+                if $not-found;
             $result = $encode(~$result) if $encode;
             return $section ?? ($result, $lambda) !! $result;
         }
